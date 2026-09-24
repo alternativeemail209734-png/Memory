@@ -1412,3 +1412,9 @@ html, body {
 .card-back::after { animation: none; opacity: 0.7; transform: none; }
 .card.matched .card-front::before,
 .card.matched .card-front::after { display: none; animation: none; }
+
+
+/* ---- Part 11: no idle motion at all ---- */
+.card:not(.flipped):not(.matched) .card-back,
+.card-front img { animation: none !important; }
+.lb-reset-btn { width: 100%; margin-bottom: 8px; }

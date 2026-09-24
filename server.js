@@ -735,8 +735,8 @@ const EMOJI_PACKS = {
   space: {
     label: 'Space & Sky',
     emojis: [
-      '☄️', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗',
-      '🌘', '🪐', '🌍', '🌎', '🌏', '🌌', '🌠', '🌟',
+      '☄️', '🌬️', '🌫️', '🌐', '🧭', '🪂', '⚛️', '🧊',
+      '🌂', '🪐', '🌍', '🌎', '🌏', '🌌', '🌠', '🌟',
       '⭐', '✨', '💫', '🌙', '🌞', '☀️', '🌝', '🌚',
       '🚀', '🛸', '🛰️', '👽', '👾', '🔭', '🌈', '☁️',
       '⛅', '🌤️', '🌥️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️',
@@ -792,7 +792,7 @@ const EMOJI_PACKS = {
     emojis: [
       '🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨',
       '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒',
-      '🗼', '🗽', '⛪', '🕌', '🛕', '🕍', '⛩️', '🕋',
+      '🗼', '🗽', '⛪', '🕌', '🛕', '🕍', '⛩️', '🗾',
       '⛲', '⛺', '🌁', '🌃', '🏙️', '🌄', '🌅', '🌆',
       '🌇', '🌉', '🏖️', '🏝️', '🏜️', '🏞️', '🏔️', '⛰️',
       '🌋', '🗻', '🏕️', '🏛️', '🏟️', '🏘️', '🏚️', '🗿',
@@ -1394,6 +1394,9 @@ io.on('connection', (socket) => {
   }, true));
 
   // Hints & reveals (no points for anyone).
+  // Reset scores (host). Round = this game's table only; all-time = the saved table.
+  socket.on('host:resetRoundScores', safe(() => { state.scores = {}; emitLeaderboards(); }, true));
+  socket.on('host:resetAllTimeScores', safe(() => { state.allTimeScores = {}; saveAllTimeScoresNow(); emitLeaderboards(); }, true));
   socket.on('host:peek', safe(() => peekBoard(), true));
   socket.on('host:revealPair', safe((p) => { revealPairs(Math.max(1, Math.min(10, parseInt(p.count, 10) || 1))); }, true));
   socket.on('host:revealBoard', safe(() => revealBoard(), true));

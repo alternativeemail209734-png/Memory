@@ -824,6 +824,17 @@
   function confirmRevealBoard(closeDrawer) {
     if (window.confirm('Reveal the whole board? This ends the current game.')) hostHint('host:revealBoard', undefined, closeDrawer);
   }
+  function confirmReset(kind) {
+    const all = kind === 'alltime';
+    const msg = all ? 'Reset the ALL-TIME leaderboard for everyone? This cannot be undone.' : 'Reset the THIS ROUND leaderboard? Everyone starts again from 0 this game.';
+    if (window.confirm(msg)) socket.emit(all ? 'host:resetAllTimeScores' : 'host:resetRoundScores');
+  }
+  document.getElementById('resetRoundBtn').addEventListener('click', () => confirmReset('round'));
+  document.getElementById('resetAllTimeBtn').addEventListener('click', () => confirmReset('alltime'));
+  document.getElementById('lbResetBtn').addEventListener('click', () => {
+    const t = document.querySelector('.lb-modal-tab.active');
+    confirmReset(t && t.getAttribute('data-lb-tab') === 'alltime' ? 'alltime' : 'round');
+  });
   document.getElementById('peekTopBtn').addEventListener('click', () => hostHint('host:peek'));
   document.getElementById('revealPairTopBtn').addEventListener('click', () => hostHint('host:revealPair', { count: 1 }));
   document.getElementById('peekBtn').addEventListener('click', () => hostHint('host:peek', undefined, true));

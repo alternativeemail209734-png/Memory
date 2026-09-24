@@ -148,6 +148,7 @@
         <button type="button" class="lb-modal-tab active" data-lb-tab="round">This Round</button>
         <button type="button" class="lb-modal-tab" data-lb-tab="alltime">All-Time</button>
       </div>
+      <button id="lbResetBtn" type="button" class="btn btn-secondary lb-reset-btn">Reset scores in this tab</button>
       <ol id="leaderboardModalRoundList" class="round-end-list"></ol>
       <ol id="leaderboardModalAllTimeList" class="round-end-list capped-20" hidden></ol>
     </div>
@@ -242,6 +243,15 @@
           <button id="revealPairBtn" class="btn btn-secondary">Reveal 1 Pair</button>
           <button id="revealThreeBtn" class="btn btn-secondary">Reveal 3 Pairs</button>
           <button id="revealBoardBtn" class="btn btn-danger">Reveal Whole Board</button>
+        </div>
+      </div>
+
+      <div class="hints-box">
+        <h3 class="hints-title">Reset Scores</h3>
+        <p class="hint">Clears a leaderboard for everyone. This cannot be undone.</p>
+        <div class="hints-buttons">
+          <button id="resetRoundBtn" class="btn btn-secondary">Reset This Round</button>
+          <button id="resetAllTimeBtn" class="btn btn-danger">Reset All-Time</button>
         </div>
       </div>
 

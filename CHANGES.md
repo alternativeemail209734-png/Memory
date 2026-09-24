@@ -1,4 +1,10 @@
-# What changed (part 10)
+# What changed (part 11)
+
+- **Reset scores:** Settings has a new **Reset Scores** box with **Reset This Round** and **Reset All-Time** (each asks you to confirm). The trophy Leaderboards window also has a **Reset scores in this tab** button that resets whichever tab is open. Resetting the round clears everyone's points and streaks for this game only. Resetting all-time clears the saved file too. Neither can be undone.
+- **No idle motion:** the slow float on face-down tiles and the breathing of face-up pictures are removed. Tiles now only move when a card flips, shakes on a wrong pair, or pops on a match.
+- **Space & Sky:** the eight moon phases are replaced with wind, fog, globe, compass, parachute, atom, ice cube and umbrella. **Buildings & Places:** the Kaaba is replaced with a map of Japan. Every one of the 432 pictures across the 9 packs is still unique.
+
+# Part 10
 
 - **No glistening or flashing:** removed the shimmer sweep across tiles, the twinkling corner star and the sparkle burst on matches. The corner star is now still. The only motion left is a slow, gentle float on face-down tiles and a slow breathing of face-up pictures, with no brightness changes.
 - **Space & Sky** now includes celestial objects: comet/meteor, all eight moon phases, ringed planet, three Earths, galaxy, shooting star, sun, UFO, satellite, telescope and more, alongside the sky and weather pictures.
