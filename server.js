@@ -65,6 +65,8 @@ const EMOJI_POOL = [
   '🍕', '🍔', '🍟', '🌮', '🍩', '🍪', '🎂', '🍭',
 ];
 
+const MISMATCH_SHOW_MS = 1100; // how long a wrong pair stays face-up
+
 // ---------------------------------------------------------------------------
 // GAME STATE (single shared match — everyone in chat plays together)
 // ---------------------------------------------------------------------------
@@ -73,8 +75,10 @@ const state = {
   level: 2,
   cols: LEVELS[2].cols,
   rows: LEVELS[2].rows,
+  gameId: 0,              // goes up by 1 every time a new game starts
+  startedAt: null,        // ms timestamp when this game started
+  solvedAt: null,         // ms timestamp when the last pair was found
   cards: [],              // [{ id, emoji, flipped, matched }]
-  pendingFlip: null,      // { a, b, user } while a mismatch is on display
   locked: false,          // true while a mismatched pair is briefly shown
   scores: {},             // { username: matchCount }
   rawEventCount: 0,
@@ -91,33 +95,51 @@ function shuffle(arr) {
 }
 
 function newGame(level) {
-  const cfg = LEVELS[level] || LEVELS[2];
-  state.level = Number(level) in LEVELS ? Number(level) : 2;
+  const key = Number(level) in LEVELS ? Number(level) : 2;
+  const cfg = LEVELS[key];
+  state.level = key;
   state.cols = cfg.cols;
   state.rows = cfg.rows;
   const pairCount = cfg.cards / 2;
   const emojis = shuffle(EMOJI_POOL.slice(0, pairCount).concat(EMOJI_POOL.slice(0, pairCount)));
-  shuffle(emojis);
   state.cards = emojis.map((emoji, idx) => ({
     id: idx + 1,
     emoji,
     flipped: false,
     matched: false,
   }));
-  state.pendingFlip = null;
   state.locked = false;
   state.scores = {};
+  state.gameId += 1;
+  state.startedAt = Date.now();
+  state.solvedAt = null;
   broadcast();
 }
 
 function broadcast() {
   io.emit('state', publicState());
+  io.emit('leaderboard', leaderboard());
 }
 
 // Never leak emoji identities for un-flipped, un-matched cards to the client.
 function publicState() {
+  const matchedCards = state.cards.filter((c) => c.matched).length;
   return {
-    ...state,
+    mode: state.mode,
+    level: state.level,
+    levelName: LEVELS[state.level].name,
+    cols: state.cols,
+    rows: state.rows,
+    gameId: state.gameId,
+    startedAt: state.startedAt,
+    solvedAt: state.solvedAt,
+    serverNow: Date.now(),
+    matchedPairs: matchedCards / 2,
+    totalPairs: state.cards.length / 2,
+    locked: state.locked,
+    rawEventCount: state.rawEventCount,
+    lastEvent: state.lastEvent,
+    tiktok: state.tiktok,
     cards: state.cards.map((c) => ({
       id: c.id,
       matched: c.matched,
@@ -130,56 +152,65 @@ function publicState() {
 function leaderboard() {
   return Object.entries(state.scores)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
+    .slice(0, 50)
     .map(([user, score]) => ({ user, score }));
 }
 
 // ---------------------------------------------------------------------------
-// CORE GAME LOGIC: flip two cards, check match, score, auto-unflip on miss
+// CORE GAME LOGIC: flip two cards, check match, score, auto-unflip on miss.
+// Always returns { kind } so the screen can say what happened to each guess:
+//   match | miss | busy | taken | invalid
 // ---------------------------------------------------------------------------
 function attemptFlip(aId, bId, user) {
   try {
-    if (state.locked) return; // a mismatch is mid-animation — ignore new input
-    if (!Number.isInteger(aId) || !Number.isInteger(bId)) return;
-    if (aId === bId) return;
+    if (state.solvedAt) return { kind: 'busy' };            // game already finished
+    if (state.locked) return { kind: 'busy' };              // a mismatch is on display
+    if (!Number.isInteger(aId) || !Number.isInteger(bId)) return { kind: 'invalid' };
+    if (aId === bId) return { kind: 'invalid' };
     const a = state.cards.find((c) => c.id === aId);
     const b = state.cards.find((c) => c.id === bId);
-    if (!a || !b) return;
-    if (a.matched || b.matched || a.flipped || b.flipped) return;
+    if (!a || !b) return { kind: 'invalid' };
+    if (a.matched || b.matched || a.flipped || b.flipped) return { kind: 'taken' };
 
     a.flipped = true;
     b.flipped = true;
-    broadcast();
 
     if (a.emoji === b.emoji) {
       a.matched = true;
       b.matched = true;
       state.scores[user] = (state.scores[user] || 0) + 1;
+      const won = state.cards.every((c) => c.matched);
+      if (won) state.solvedAt = Date.now();
       broadcast();
-      maybeAnnounceWin();
-    } else {
-      state.locked = true;
-      broadcast();
-      setTimeout(() => {
-        try {
-          a.flipped = false;
-          b.flipped = false;
-          state.locked = false;
-          broadcast();
-        } catch (e) {
-          console.error('[ERR] unflip timeout handler:', e);
-        }
-      }, 1100);
+      if (won) {
+        io.emit('gameOver', {
+          leaderboard: leaderboard(),
+          elapsedMs: state.solvedAt - state.startedAt,
+          totalPairs: state.cards.length / 2,
+          levelName: LEVELS[state.level].name,
+        });
+      }
+      return { kind: 'match' };
     }
+
+    state.locked = true;
+    broadcast();
+    const gameAtFlip = state.gameId;
+    setTimeout(() => {
+      try {
+        if (state.gameId !== gameAtFlip) return; // a new game started meanwhile
+        a.flipped = false;
+        b.flipped = false;
+        state.locked = false;
+        broadcast();
+      } catch (e) {
+        console.error('[ERR] unflip timeout handler:', e);
+      }
+    }, MISMATCH_SHOW_MS);
+    return { kind: 'miss' };
   } catch (e) {
     console.error('[ERR] attemptFlip:', e);
-  }
-}
-
-function maybeAnnounceWin() {
-  const allMatched = state.cards.length > 0 && state.cards.every((c) => c.matched);
-  if (allMatched) {
-    io.emit('gameOver', { leaderboard: leaderboard() });
+    return { kind: 'invalid' };
   }
 }
 
@@ -216,7 +247,14 @@ function handleIncomingComment(user, text, { countsAsRawEvent = true } = {}) {
     if (countsAsRawEvent) state.rawEventCount += 1;
     state.lastEvent = { user, text };
     const pair = parseTwoNumbers(text);
-    if (pair) attemptFlip(pair[0], pair[1], user);
+    const result = pair ? attemptFlip(pair[0], pair[1], user) : { kind: 'format' };
+    io.emit('guessResult', {
+      user,
+      text: String(text || '').slice(0, 60),
+      kind: result.kind,
+      a: pair ? pair[0] : null,
+      b: pair ? pair[1] : null,
+    });
     broadcast();
   } catch (e) {
     console.error('[ERR] handleIncomingComment:', e);
@@ -339,12 +377,13 @@ io.on('connection', (socket) => {
   socket.emit('state', publicState());
   socket.emit('leaderboard', leaderboard());
 
-  socket.on('host:newGame', ({ level }) => {
-    try { newGame(level); } catch (e) { console.error('[ERR] host:newGame', e); }
+  socket.on('host:newGame', (payload) => {
+    try { newGame((payload || {}).level); } catch (e) { console.error('[ERR] host:newGame', e); }
   });
 
-  socket.on('host:setMode', ({ mode }) => {
+  socket.on('host:setMode', (payload) => {
     try {
+      const mode = (payload || {}).mode;
       if (['offline', 'test', 'live'].includes(mode)) {
         if (mode !== 'live' && state.tiktok.connected) disconnectTikTok();
         state.mode = mode;
@@ -353,27 +392,34 @@ io.on('connection', (socket) => {
     } catch (e) { console.error('[ERR] host:setMode', e); }
   });
 
-  // Manual chat simulation from the Host input box (works in any mode).
-  socket.on('host:manualInput', ({ user, text }) => {
-    try { handleIncomingComment(user || 'Host', text); } catch (e) { console.error('[ERR] host:manualInput', e); }
+  // Manual chat simulation from the Host console (works in any mode).
+  socket.on('host:manualInput', (payload) => {
+    try {
+      const p = payload || {};
+      handleIncomingComment(p.user || 'Host', p.text);
+    } catch (e) { console.error('[ERR] host:manualInput', e); }
   });
 
-  // Test Mode: server generates a plausible fake viewer comment.
+  // Test Mode: server generates a plausible fake viewer comment, picking
+  // only from cards that are still face-down so every click does something.
   socket.on('test:simulate', () => {
     try {
       const fakeUsers = ['fan_88', 'tiktoker_x', 'lurker99', 'newbie123', 'catlover', 'giftgiver', 'anon_viewer'];
       const user = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
-      const maxId = state.cards.length || 20;
-      let a = 1 + Math.floor(Math.random() * maxId);
-      let b = 1 + Math.floor(Math.random() * maxId);
-      while (b === a) b = 1 + Math.floor(Math.random() * maxId);
+      const open = state.cards.filter((c) => !c.matched && !c.flipped).map((c) => c.id);
+      if (open.length < 2) return;
+      shuffle(open);
+      const [a, b] = open;
       const text = Math.random() > 0.5 ? `${a} ${b}` : `${a}, ${b}`;
       handleIncomingComment(user, text);
     } catch (e) { console.error('[ERR] test:simulate', e); }
   });
 
-  socket.on('tiktok:connect', ({ uniqueId, apiKey }) => {
-    try { connectTikTok((uniqueId || '').replace(/^@/, ''), apiKey); } catch (e) { console.error('[ERR] tiktok:connect', e); }
+  socket.on('tiktok:connect', (payload) => {
+    try {
+      const p = payload || {};
+      connectTikTok(String(p.uniqueId || '').replace(/^@/, ''), p.apiKey);
+    } catch (e) { console.error('[ERR] tiktok:connect', e); }
   });
 
   socket.on('tiktok:disconnect', () => {
@@ -383,16 +429,7 @@ io.on('connection', (socket) => {
   socket.on('request:leaderboard', () => {
     socket.emit('leaderboard', leaderboard());
   });
-
-  socket.on('disconnect', () => {});
 });
-
-// Push a fresh leaderboard alongside every state broadcast.
-const originalBroadcast = broadcast;
-broadcast = function patchedBroadcast() {
-  originalBroadcast();
-  io.emit('leaderboard', leaderboard());
-};
 
 // Boot with a default game so the screen is never empty.
 newGame(2);
