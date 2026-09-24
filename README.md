@@ -31,7 +31,7 @@ With both set, the game connects to your LIVE **by itself** every time it starts
 2. Upload every file from this folder again, on top of the old ones (same names, same `public` folder). Choose to replace when asked.
 3. Render notices the change and updates your game by itself in a minute or two.
 
-Two things changed in the files. `package.json` has a new TikTok library version, and there is a new `render.yaml`. Both are picked up automatically. (If you're updating from an earlier build, `style.css` has the current tile look and `server.js` has the current emoji set — nothing to configure either way.)
+This update changed `server.js`, `client.js`, `style.css` and `index.html` (a fresh tile look, combo/streak bonuses, and a Card Symbols picker) plus this `README.md` and `CHANGES.md`. Nothing needs configuring - the new look and features are there as soon as Render redeploys.
 
 ## Using the game
 
@@ -40,7 +40,8 @@ Open your Render link on your phone or PC.
 - The game board fills the screen. Cards are numbered. Viewers type two numbers in chat, like `1 5`, `1,5` or `1-5`, to flip those two cards.
 - Top bar (left to right): difficulty badge, new game, leaderboard, **peek**, **reveal a pair**, theme colours, full screen, settings.
 - To change difficulty: tap the numbered badge, pick a level, then tap the new game button (the circular arrow).
-- Tap **Settings** (the gear) to pick Offline, Test or Live mode, and to connect TikTok.
+- Tap **Settings** (the gear) to pick Offline, Test or Live mode, to connect TikTok, and to pick a **Card Symbols** pack (Animals, Sweets & Treats, Space, Holiday, Faces, or the original Classic Mix) - picking a new pack starts a fresh game with it right away.
+- **Combo streaks:** a viewer who matches pairs back-to-back earns bonus points - the 2nd pair in a row is worth 2 points, the 3rd worth 3, and 4+ in a row is worth 4. A wrong guess resets that viewer's streak. While someone's streak is 2 or more, a small flame badge (e.g. "🔥×3") shows next to their name in the guess pop-up and the This Round leaderboard.
 - **Host Console** at the bottom lets you type guesses yourself. Tap **Hide** to hide it, and **Console** to bring it back.
 - Tap **Leaderboard & Activity** under the board to see the scores, the last chat comment the game received and how it read it, and every recent guess.
 - Tap the trophy for the leaderboard window (**This Round** and **All-Time**).

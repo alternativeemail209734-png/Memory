@@ -1,15 +1,25 @@
-# What changed (part 6 of 6)
+# What changed (part 7 of 7)
 
-Part 6 replaces the glossy "candy button" tiles and the rainbow board with a calmer, minimalist look. Nothing about how the game plays, connects or scores has changed.
+Part 7 gives the board a fresh look again (not a return to Part 4 or Part 6), and adds two new features: combo/streak bonuses for viewers, and a Card Symbols picker so you can swap the whole deck's pictures. How the game connects, scores (aside from the new streak bonus) and is played is otherwise unchanged.
 
-## Part 6 (this build): minimalist, cute tiles
-- **Flat instead of glossy:** no more gradients, gloss, polka-dot texture, or corner sparkles/hearts. Tiles are a simple soft-rounded shape with one gentle shadow.
-- **Quiet two-tone variety instead of one flat color or a full rainbow:** face-down tiles alternate between two soft pastel tones across the board (one leaning on the theme's pink, one on its cyan), so it's not a wall of one color, but it's not a loud rainbow either.
-- **Calmer status cues:** a matched pair gets a soft pastel-green tint and a thin green border (no gold glow); a wrong pair gets a quick, quiet shake instead of a red ring.
-- **Still fully theme-matched:** every tile color is computed from the active theme's own pink/cyan/green, so it re-tints itself automatically for all 8 themes and light/dark mode.
+## Part 7 (this build): puffy sticker tiles, combo streaks, symbol packs
+
+- **A fresh tile look - not the old glossy candy buttons, not the flat minimalist tiles either:** each tile is now a soft, puffy gradient "jelly bubble" with a bright die-cut sticker rim, like a cute vinyl sticker rather than a printed square or a glossy button. One small star peeks from a corner of each tile back - a single whimsical touch, not a repeating pattern, so the board stays calm rather than busy or crowded.
+  - Quiet two-tone variety is kept (tiles alternate between a pink-leaning and a cyan-leaning tone), same as Part 6, just redrawn as puffy gradients instead of flat color.
+  - Symbols now pop in with a playful bounce-and-wiggle when a card flips face-up, instead of a plain settle - a bit more "alive" without being distracting.
+  - A matched pair gets a bright puffy green tile and a quick two-corner sparkle burst that fades out, instead of a static glow or border.
+  - Still fully theme-matched: every tile color is computed from the active theme's own pink/cyan/green, so it re-tints itself automatically for all 8 themes and light/dark mode.
+- **Combo / streak bonus:** matching pairs back-to-back (no miss in between) now earns bonus points on top of the usual 1 per pair - the 2nd pair in a row is worth 2, the 3rd worth 3, the 4th and beyond worth 4 (the bonus caps there so one long streak can't run away with the whole round). A viewer's streak resets the moment they guess a pair that doesn't match. While a streak is 2 or more, a small flame badge (e.g. "🔥×3") shows next to their name in the guess pop-up and in the This Round leaderboard.
+- **Card Symbols picker (Settings):** choose which set of pictures the cards use - Classic Mix (the original set), Animals & Critters, Sweets & Treats, Space & Sky, Holiday & Celebration, or Faces & Fun. Each pack has enough unique pictures for every difficulty up to Chaos. Picking a new pack starts a fresh game right away with the new set, at whatever difficulty is currently selected.
+
+## Part 6: minimalist, cute tiles (superseded by Part 7, kept for history)
+Part 6 replaced the glossy "candy button" tiles and the rainbow board with a calmer, flat, two-tone look. Part 7 replaced this with the puffier sticker look above because it read as a bit dull on stream.
+- Flat instead of glossy: no gradients, gloss, polka-dot texture, or corner sparkles/hearts. Tiles were a simple soft-rounded shape with one gentle shadow.
+- Quiet two-tone variety instead of one flat color or a full rainbow.
+- Calmer status cues: a matched pair got a soft pastel-green tint and a thin green border; a wrong pair got a quick, quiet shake.
 
 ## Part 5: a rainbow board (superseded by Part 6, kept for history)
-Part 5 gave every tile its own color from a six-color rotation of the theme's pink/green, with a gold glow on matches and a red ring on misses. Part 6 replaced this with the calmer look above because it read as more cluttered than cute.
+Part 5 gave every tile its own color from a six-color rotation of the theme's pink/green, with a gold glow on matches and a red ring on misses. Part 6 replaced this with a calmer look because it read as more cluttered than cute.
 
 ## Part 4: cute, glossy 3D tiles
 - **Tiles now look like little glossy candy buttons**, not flat rectangles: rounder corners, a soft shine near the top-left, a raised "gumdrop" edge underneath for real depth, and a gentle bounce as a card settles face-up.

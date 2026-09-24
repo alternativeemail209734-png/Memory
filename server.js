@@ -677,18 +677,76 @@ const LEVELS = {
   5: { name: 'Chaos', cols: 8, rows: 12, cards: 96 },
 };
 
-// 48 distinct, high-contrast, extra-cute emojis -> enough for 96 cards
-// (48 pairs) at Level 5. Leans kawaii: baby animals, sweets and treats,
-// and a few sparkly/lovely extras, so the deck itself feels adorable
-// on top of the glossy tile styling.
-const EMOJI_POOL = [
-  '🐶', '🐱', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯',
-  '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🦄', '🐝', '🦋', '🐢',
-  '🐙', '🦀', '🐳', '🐬',
-  '🍓', '🍒', '🍑', '🍉', '🍇', '🍍', '🥝', '🍕', '🍔', '🍟',
-  '🌮', '🍩', '🍪', '🎂', '🍭', '🧁', '🍦', '🍬',
-  '🌈', '🎈', '🌸', '💖', '⭐', '🎀',
-];
+// ---------------------------------------------------------------------------
+// CARD SYMBOL PACKS - the host picks one from Settings > Card Symbols. Each
+// pack has 48 distinct emojis so every difficulty, up to Level 5 "Chaos"
+// (48 pairs / 96 cards), always has enough unique pictures. Switching packs
+// starts a fresh game with the new set (same difficulty).
+// ---------------------------------------------------------------------------
+const EMOJI_PACKS = {
+  classic: {
+    label: 'Classic Mix',
+    emojis: [
+      '🐶', '🐱', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯',
+      '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🦄', '🐝', '🦋', '🐢',
+      '🐙', '🦀', '🐳', '🐬',
+      '🍓', '🍒', '🍑', '🍉', '🍇', '🍍', '🥝', '🍕', '🍔', '🍟',
+      '🌮', '🍩', '🍪', '🎂', '🍭', '🧁', '🍦', '🍬',
+      '🌈', '🎈', '🌸', '💖', '⭐', '🎀',
+    ],
+  },
+  animals: {
+    label: 'Animals & Critters',
+    emojis: [
+      '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯',
+      '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊', '🐔', '🐧',
+      '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗',
+      '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦂', '🐢',
+      '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦀', '🐡',
+    ],
+  },
+  food: {
+    label: 'Sweets & Treats',
+    emojis: [
+      '🍓', '🍒', '🍑', '🍉', '🍇', '🍈', '🍋', '🍊', '🍌', '🍍',
+      '🥝', '🍅', '🥥', '🍆', '🥑', '🍕', '🍔', '🍟', '🌭', '🌮',
+      '🌯', '🥪', '🍩', '🍪', '🎂', '🍰', '🧁', '🍮', '🍭', '🍬',
+      '🍫', '🍿', '🧊', '🍦', '🍧', '🍨', '🥧', '🍯', '🥞', '🧇',
+      '🍗', '🍖', '🥓', '🥐', '🥯', '🥨', '🧀', '🍳',
+    ],
+  },
+  space: {
+    label: 'Space & Sky',
+    emojis: [
+      '🌟', '⭐', '✨', '💫', '🌙', '🌛', '🌜', '🌚', '🌝', '🌞',
+      '☀️', '🌤️', '⛅', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️',
+      '❄️', '☃️', '⛄', '🌬️', '💨', '🌪️', '🌈', '☔', '💧', '💦',
+      '🌊', '🪐', '🌍', '🌎', '🌏', '🌌', '🚀', '🛸', '🛰️', '👽',
+      '👾', '🌠', '🔭', '⚡', '🌡️', '🌀', '🔥', '💥',
+    ],
+  },
+  holiday: {
+    label: 'Holiday & Celebration',
+    emojis: [
+      '🎄', '🎅', '🤶', '🎁', '🔔', '🦌', '⛄', '❄️', '🕯️', '✨',
+      '🎆', '🎇', '🧨', '🎉', '🎊', '🎈', '🎂', '🍰', '🥳', '😄',
+      '🎃', '👻', '💀', '☠️', '🧙', '🧛', '🧟', '🕷️', '🕸️', '🦇',
+      '🍬', '🍭', '🐰', '🥚', '🌷', '🌸', '🐣', '🎏', '🎐', '🧧',
+      '🐉', '🏮', '💮', '🌟', '💝', '❤️', '💕', '💖',
+    ],
+  },
+  faces: {
+    label: 'Faces & Fun',
+    emojis: [
+      '😀', '😃', '😄', '😁', '😆', '🥹', '😅', '😂', '🤣', '😊',
+      '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙',
+      '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎',
+      '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁',
+      '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭',
+    ],
+  },
+};
+const DEFAULT_EMOJI_PACK = 'classic';
 
 // Host-adjustable timings shared by every screen (seconds): default, min, max.
 const TIMING = {
@@ -698,6 +756,16 @@ const TIMING = {
 };
 const BOT_TICK_MS = 700;            // how often a test bot makes a guess
 const BOT_CORRECT_CHANCE = 0.7;     // how often a bot picks a real pair
+
+// Combo / streak bonus: extra points on top of the base 1 per pair, for
+// consecutive matches (no miss in between) by the same viewer. Streak 1
+// (a normal, non-combo match) earns no bonus; each additional match in a
+// row adds 1 more point, up to this cap, so a very long streak is still
+// exciting without letting one viewer run away with the whole round.
+const STREAK_BONUS_CAP = 3;
+function comboBonus(streak) {
+  return Math.min(Math.max(streak - 1, 0), STREAK_BONUS_CAP);
+}
 
 // Fake viewers used by Test Mode "Auto-Play (Bots)".
 const BOTS = [
@@ -719,6 +787,7 @@ function clampSeconds(value, cfg) {
 // ---------------------------------------------------------------------------
 const state = {
   mode: 'offline',       // 'offline' | 'test' | 'live'
+  emojiPack: DEFAULT_EMOJI_PACK,  // which EMOJI_PACKS set the board draws its pictures from
   level: 2,
   cols: LEVELS[2].cols,
   rows: LEVELS[2].rows,
@@ -830,7 +899,10 @@ function newGame(level) {
   state.cols = cfg.cols;
   state.rows = cfg.rows;
   const pairCount = cfg.cards / 2;
-  const emojis = shuffle(EMOJI_POOL.slice(0, pairCount).concat(EMOJI_POOL.slice(0, pairCount)));
+  const pack = EMOJI_PACKS[state.emojiPack] ? state.emojiPack : DEFAULT_EMOJI_PACK;
+  state.emojiPack = pack;
+  const pool = EMOJI_PACKS[pack].emojis;
+  const emojis = shuffle(pool.slice(0, pairCount).concat(pool.slice(0, pairCount)));
   state.cards = emojis.map((emoji, idx) => ({
     id: idx + 1,
     emoji,
@@ -855,6 +927,7 @@ function publicState() {
   const matchedCards = state.cards.filter((c) => c.matched).length;
   return {
     mode: state.mode,
+    emojiPack: state.emojiPack,
     level: state.level,
     levelName: LEVELS[state.level].name,
     cols: state.cols,
@@ -887,25 +960,36 @@ function publicState() {
 // ---- Scores ---------------------------------------------------------------
 function ensurePlayer(table, p) {
   if (!table[p.uniqueId]) {
-    table[p.uniqueId] = { uniqueId: p.uniqueId, name: p.name || p.uniqueId, avatar: p.avatar || null, points: 0 };
+    table[p.uniqueId] = { uniqueId: p.uniqueId, name: p.name || p.uniqueId, avatar: p.avatar || null, points: 0, streak: 0 };
   }
   const row = table[p.uniqueId];
   if (p.name) row.name = p.name;
   if (p.avatar) row.avatar = p.avatar;
+  if (typeof row.streak !== 'number') row.streak = 0;
   return row;
 }
 
-function rankList(table, limit) {
+// Combo / streak bonus: consecutive correct matches (no miss in between) by
+// the SAME viewer earn extra points on top of the usual 1 per pair. Streak
+// count and bonus size are only meaningful for the current round, so only
+// the round leaderboard (withStreak) includes it - the all-time table is
+// just a running point total.
+function rankList(table, limit, opts) {
+  const withStreak = !!(opts && opts.withStreak);
   return Object.values(table)
     .filter((r) => r.points > 0)
     .sort((a, b) => b.points - a.points)
     .slice(0, limit)
-    .map((r) => ({ uniqueId: r.uniqueId, name: r.name, avatar: r.avatar, points: r.points }));
+    .map((r) => {
+      const row = { uniqueId: r.uniqueId, name: r.name, avatar: r.avatar, points: r.points };
+      if (withStreak) row.streak = r.streak || 0;
+      return row;
+    });
 }
 
 function emitLeaderboards() {
   io.emit('leaderboard', {
-    round: rankList(state.scores, 50),
+    round: rankList(state.scores, 50, { withStreak: true }),
     allTime: rankList(state.allTimeScores, 100),
   });
 }
@@ -935,7 +1019,7 @@ function finishGame() {
   broadcast();
   emitLeaderboards();
   io.emit('gameOver', {
-    leaderboard: rankList(state.scores, 50),
+    leaderboard: rankList(state.scores, 50, { withStreak: true }),
     allTimeLeaderboard: rankList(state.allTimeScores, 100),
     elapsedMs: state.solvedAt - state.startedAt,
     totalPairs: state.cards.length / 2,
@@ -966,8 +1050,15 @@ function attemptFlip(aId, bId, player) {
     if (a.emoji === b.emoji) {
       a.matched = true;
       b.matched = true;
-      ensurePlayer(state.scores, player).points += 1;
-      ensurePlayer(state.allTimeScores, player).points += 1;
+      // Combo / streak bonus: this viewer's consecutive-match streak goes up
+      // by one, and a longer streak earns extra points on top of the usual
+      // 1 per pair (capped so one lucky run can't run away with the round).
+      const roundRow = ensurePlayer(state.scores, player);
+      roundRow.streak = (roundRow.streak || 0) + 1;
+      const bonus = comboBonus(roundRow.streak);
+      const gained = 1 + bonus;
+      roundRow.points += gained;
+      ensurePlayer(state.allTimeScores, player).points += gained;
       saveAllTimeScoresDebounced();
       if (state.cards.every((c) => c.matched)) {
         finishGame();
@@ -975,8 +1066,11 @@ function attemptFlip(aId, bId, player) {
         broadcast();
         emitLeaderboards();
       }
-      return { kind: 'match' };
+      return { kind: 'match', streak: roundRow.streak, bonus, gained };
     }
+
+    // Wrong pair: this viewer's combo streak resets (their score is untouched).
+    ensurePlayer(state.scores, player).streak = 0;
 
     state.locked = true;
     broadcast();
@@ -1082,6 +1176,9 @@ function handleIncomingComment(player, text, { countsAsRawEvent = true } = {}) {
       kind: result.kind,
       a: pair ? pair[0] : null,
       b: pair ? pair[1] : null,
+      streak: result.streak || 0,
+      bonus: result.bonus || 0,
+      gained: result.gained || 0,
     });
     broadcast();
   } catch (e) {
@@ -1136,6 +1233,15 @@ function setMode(mode) {
   if (mode !== 'test' && state.botsOn) setBots(false);
   state.mode = mode;
   broadcast();
+}
+
+// Card Symbols picker (Settings): swap which emoji pack the board draws
+// from, then start a fresh game at the current difficulty so every card
+// shows the new set right away.
+function setEmojiPack(pack) {
+  if (!EMOJI_PACKS[pack] || pack === state.emojiPack) return;
+  state.emojiPack = pack;
+  newGame(state.level);
 }
 
 // ---------------------------------------------------------------------------
@@ -1200,7 +1306,7 @@ function safe(fn, isHostAction) {
 io.on('connection', (socket) => {
   socket.emit('state', publicState());
   socket.emit('leaderboard', {
-    round: rankList(state.scores, 50),
+    round: rankList(state.scores, 50, { withStreak: true }),
     allTime: rankList(state.allTimeScores, 100),
   });
   // Lets the page skip asking for the Sign API Key when the server has one.
@@ -1208,9 +1314,12 @@ io.on('connection', (socket) => {
     hasDefaultSignApiKey: !!DEFAULT_SIGN_API_KEY,
     defaultUsername: DEFAULT_TIKTOK_USERNAME || '',
   });
+  // Card Symbols picker: static list of packs, sent once per connection.
+  socket.emit('emojiPacks', Object.keys(EMOJI_PACKS).map((id) => ({ id, label: EMOJI_PACKS[id].label })));
 
   socket.on('host:newGame', safe((p) => newGame(p.level), true));
   socket.on('host:setMode', safe((p) => setMode(p.mode), true));
+  socket.on('host:setEmojiPack', safe((p) => setEmojiPack(String(p.pack || '')), true));
 
   socket.on('host:setAutoNext', safe((p) => {
     state.autoNext = !!p.enabled;
@@ -1248,6 +1357,7 @@ io.on('connection', (socket) => {
     if (p.autoNextDelaySeconds !== undefined) state.autoNextDelaySeconds = clampSeconds(p.autoNextDelaySeconds, TIMING.autoNext);
     if (p.mismatchSeconds !== undefined) state.mismatchSeconds = clampSeconds(p.mismatchSeconds, TIMING.mismatch);
     if (p.peekSeconds !== undefined) state.peekSeconds = clampSeconds(p.peekSeconds, TIMING.peek);
+    if (EMOJI_PACKS[p.emojiPack]) state.emojiPack = p.emojiPack;
     if (Number(p.level) in LEVELS && Number(p.level) !== state.level) newGame(p.level);
     if (typeof p.bots === 'boolean') setBots(p.bots && state.mode === 'test');
     broadcast();

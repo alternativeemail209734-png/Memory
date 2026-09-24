@@ -1,6 +1,6 @@
 {
   "name": "tiktok-live-memory-game",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Fully automated TikTok LIVE Memory/Concentration card matching game. Audience plays by typing two numbers in chat.",
   "main": "server.js",
   "engines": {
