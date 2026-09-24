@@ -189,6 +189,11 @@
   const feedListEl = document.getElementById('feedList');
   const pairsCounterEl = document.getElementById('pairsCounter');
   const solvedBannerEl = document.getElementById('solvedBanner');
+  const allTimeListEl = document.getElementById('allTimeLeaderboardList');
+  const toastAreaEl = document.getElementById('liveGuessToastArea');
+  const autoNextCountdownEl = document.getElementById('autoNextCountdown');
+  const autoNextToggle = document.getElementById('autoNextToggle');
+  const botsToggle = document.getElementById('botsToggle');
   const stopwatchEl = document.getElementById('stopwatch');
   const liveStatusMiniEl = document.getElementById('liveStatusMini');
   const liveStatusEl = document.getElementById('liveStatus');
@@ -202,7 +207,7 @@
   let lastGameId = null;
   let builtForGame = null;
   let serverClockOffset = 0;       // server time minus this device's time
-  let lastLeaderboard = [];
+  let lastLeaderboard = { round: [], allTime: [] };
   const cardEls = new Map();       // card id -> { el, front }
 
   // ---- Board ------------------------------------------------------------
@@ -299,33 +304,71 @@
     liveStatusEl.textContent = full;
   }
 
+  // ---- Avatars: real TikTok photo when known, initials circle otherwise --
+  function hashStringToHue(str) {
+    let hash = 0;
+    str = String(str || '?');
+    for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+    return hash % 360;
+  }
+  function initialsFor(name) {
+    const parts = String(name || '?').trim().split(/\s+/);
+    let initials = (parts[0] || '?').charAt(0);
+    if (parts.length > 1) initials += parts[parts.length - 1].charAt(0);
+    initials = initials.toUpperCase();
+    return /^[\p{L}\p{N}]+$/u.test(initials) ? initials : '?';
+  }
+  function generatedAvatarDataUri(seed, name) {
+    const bg = 'hsl(' + hashStringToHue(seed || name) + ', 55%, 45%)';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+      '<circle cx="32" cy="32" r="32" fill="' + bg + '"/>' +
+      '<text x="32" y="41" font-family="Segoe UI, Arial, sans-serif" font-size="26" ' +
+      'font-weight="700" fill="#ffffff" text-anchor="middle">' + initialsFor(name) + '</text></svg>';
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+  function makeAvatarImg(avatarUrl, uniqueId, name, sizeClass) {
+    const img = document.createElement('img');
+    img.className = 'avatar-circle' + (sizeClass ? ' ' + sizeClass : '');
+    img.alt = '';
+    img.referrerPolicy = 'no-referrer';
+    const fallback = generatedAvatarDataUri(uniqueId, name);
+    img.src = avatarUrl || fallback;
+    // An expired or blocked photo link falls back to the initials circle.
+    img.addEventListener('error', () => { if (img.src !== fallback) img.src = fallback; });
+    return img;
+  }
+
   // ---- Lists ---------------------------------------------------------------
   function rankBadge(idx) {
     const medals = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
     return idx < 3 ? medals[idx] : String(idx + 1);
   }
-  function fillScoreList(listEl, list, rowClass) {
+  // kind 'window' = big rows for the pop-up windows, 'inline' = compact rows.
+  function fillScoreList(listEl, list, kind) {
+    const windowRows = kind === 'window';
     listEl.innerHTML = '';
-    if (!list.length) {
+    if (!list || !list.length) {
       const li = document.createElement('li');
       li.className = 'lb-empty';
-      li.textContent = 'No pairs found yet';
+      li.textContent = windowRows ? 'No scorers yet.' : 'No pairs found yet';
       listEl.appendChild(li);
       return;
     }
     list.forEach((row, idx) => {
       const li = document.createElement('li');
       const rank = document.createElement('span');
-      rank.className = rowClass ? 'round-end-rank' + (idx < 3 ? ' round-end-rank-medal' : '') : 'inline-rank' + (idx < 3 ? ' inline-rank-medal' : '');
+      const medal = idx < 3 ? (windowRows ? ' round-end-rank-medal' : ' inline-rank-medal') : '';
+      rank.className = (windowRows ? 'round-end-rank' : 'inline-rank') + medal;
       rank.textContent = rankBadge(idx);
-      const name = document.createElement('span');
-      name.className = rowClass ? 'round-end-name' : 'lb-name';
-      name.textContent = row.user;
-      const pts = document.createElement('span');
-      pts.className = rowClass ? 'round-end-points' : 'lb-points';
-      pts.textContent = row.score;
       li.appendChild(rank);
+      li.appendChild(makeAvatarImg(row.avatar, row.uniqueId, row.name, windowRows ? 'lg' : ''));
+      const name = document.createElement('span');
+      name.className = windowRows ? 'round-end-name' : 'lb-name';
+      name.textContent = row.name;
       li.appendChild(name);
+      const pts = document.createElement('span');
+      pts.className = windowRows ? 'round-end-points' : 'lb-points';
+      pts.textContent = windowRows ? row.points + (row.points === 1 ? ' pt' : ' pts') : row.points;
       li.appendChild(pts);
       listEl.appendChild(li);
     });
@@ -338,54 +381,157 @@
       : '(none yet)';
   }
 
-  // ---- Recent guesses feed ------------------------------------------------
-  function addFeedItem(r) {
-    const pair = r.a != null ? r.a + ' & ' + r.b : '"' + r.text + '"';
-    const outcomes = {
-      match:   ['feed-correct', pair + ' \u2014 match! +1'],
-      miss:    ['feed-wrong',   pair + ' \u2014 no match'],
-      taken:   ['feed-info',    pair + ' \u2014 already flipped'],
-      invalid: ['feed-wrong',   pair + ' \u2014 not a card'],
-      busy:    ['feed-info',    pair + ' \u2014 too soon, cards still showing'],
-      format:  ['feed-info',    pair + ' \u2014 not two card numbers'],
-    };
-    const o = outcomes[r.kind] || outcomes.format;
+  // ---- Every guess: feed line + floating pill ---------------------------------
+  const TOAST_MS = 4200;
+  let toastTimer = null;
+
+  function describeGuess(r) {
+    const pair = r.a != null ? r.a + ' & ' + r.b : null;
+    switch (r.kind) {
+      case 'match':   return { tone: 'correct', text: 'found ' + pair, feed: pair + ' \u2014 match! +1', points: '+1' };
+      case 'miss':    return { tone: 'wrong',   text: pair + ' \u2014 no match', feed: pair + ' \u2014 no match' };
+      case 'taken':   return { tone: 'info',    text: pair + ' \u2014 already flipped', feed: pair + ' \u2014 already flipped' };
+      case 'invalid': return { tone: 'wrong',   text: pair + ' \u2014 not a card', feed: pair + ' \u2014 not a card' };
+      case 'busy':    return { tone: 'info',    text: 'too soon \u2014 cards still showing', feed: (pair || '') + ' \u2014 too soon, cards still showing' };
+      default:        return { tone: 'format',  text: 'wrong format \u2014 try e.g. 1 5', feed: '"' + r.text + '" \u2014 not two card numbers' };
+    }
+  }
+
+  function addFeedItem(r, d) {
     const li = document.createElement('li');
-    li.className = o[0];
+    li.className = d.tone === 'correct' ? 'feed-correct' : d.tone === 'wrong' ? 'feed-wrong' : 'feed-info';
     const who = document.createElement('span');
     who.className = 'feed-user';
-    who.textContent = r.user + ': ';
+    who.textContent = r.name + ': ';
     li.appendChild(who);
-    li.appendChild(document.createTextNode(o[1]));
+    li.appendChild(document.createTextNode(d.feed.trim()));
     feedListEl.insertBefore(li, feedListEl.firstChild);
     while (feedListEl.children.length > 40) feedListEl.removeChild(feedListEl.lastChild);
   }
 
-  // ---- Overlays ---------------------------------------------------------------
+  // One pill at a time: a new guess replaces whatever is showing.
+  function pushGuessToast(r, d) {
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    while (toastAreaEl.firstChild) toastAreaEl.removeChild(toastAreaEl.firstChild);
+    const toast = document.createElement('div');
+    toast.className = 'guess-toast toast-' + d.tone;
+    toast.appendChild(makeAvatarImg(r.avatar, r.uniqueId, r.name));
+    const name = document.createElement('span');
+    name.className = 'guess-name';
+    name.textContent = r.name;
+    toast.appendChild(name);
+    const detail = document.createElement('span');
+    detail.className = 'guess-detail';
+    detail.textContent = d.text;
+    toast.appendChild(detail);
+    if (d.points) {
+      const pts = document.createElement('span');
+      pts.className = 'guess-points';
+      pts.textContent = d.points;
+      toast.appendChild(pts);
+    }
+    toastAreaEl.appendChild(toast);
+    toastTimer = setTimeout(() => {
+      toast.classList.add('leaving');
+      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
+    }, TOAST_MS);
+  }
+
+  function handleGuess(r) {
+    const d = describeGuess(r);
+    addFeedItem(r, d);
+    pushGuessToast(r, d);
+  }
+
+  // ---- Auto next game countdown -------------------------------------------------
+  const roundEndCountdownEl = document.getElementById('roundEndCountdown');
+  let countdownTimer = null;
+  function clearAutoNextCountdown() {
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    autoNextCountdownEl.hidden = true;
+    roundEndCountdownEl.hidden = true;
+  }
+  function showCountdownText(remaining) {
+    autoNextCountdownEl.hidden = false;
+    autoNextCountdownEl.textContent = 'Next game starts in ' + remaining + 's...';
+    roundEndCountdownEl.hidden = false;
+    roundEndCountdownEl.textContent = 'Next game starts in ' + remaining + 's...';
+  }
+  function startAutoNextCountdown(seconds) {
+    let remaining = Math.max(0, Math.round(seconds));
+    clearAutoNextCountdown();
+    showCountdownText(remaining);
+    countdownTimer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) clearAutoNextCountdown();
+      else showCountdownText(remaining);
+    }, 1000);
+  }
+
+  // ---- Round-end window: this round's scorers, then all-time, then closes ----
+  const ROUND_WINDOW_MS = 5000;
+  const ALLTIME_WINDOW_MS = 5000;
   const roundEndOverlay = document.getElementById('roundEndOverlay');
+  const roundEndTitle = document.getElementById('roundEndTitle');
   const roundEndList = document.getElementById('roundEndList');
   const roundEndSummary = document.getElementById('roundEndSummary');
-  function hideRoundEnd() { roundEndOverlay.hidden = true; }
-  function showRoundEnd(payload) {
+  const roundEndNewGameBtn = document.getElementById('roundEndNewGameBtn');
+  let roundEndTimers = [];
+
+  function clearRoundEndTimers() {
+    roundEndTimers.forEach((t) => clearTimeout(t));
+    roundEndTimers = [];
+  }
+  function hideRoundEnd() {
+    clearRoundEndTimers();
+    roundEndOverlay.hidden = true;
+  }
+  function showRoundEndSequence(payload) {
+    clearRoundEndTimers();
+    roundEndTitle.textContent = 'This Round\u2019s Top Scorers';
+    roundEndSummary.hidden = false;
     roundEndSummary.textContent = 'All ' + payload.totalPairs + ' pairs found on ' + payload.levelName + ' in ' + formatDuration(payload.elapsedMs) + '.';
-    fillScoreList(roundEndList, (payload.leaderboard || []).slice(0, 10), true);
+    roundEndList.classList.remove('capped-20');
+    fillScoreList(roundEndList, payload.leaderboard || [], 'window');
     roundEndOverlay.hidden = false;
+    roundEndTimers.push(setTimeout(() => {
+      roundEndTitle.textContent = 'All-Time Top Scorers';
+      roundEndSummary.hidden = true;
+      roundEndList.classList.add('capped-20');
+      fillScoreList(roundEndList, payload.allTimeLeaderboard || [], 'window');
+      roundEndTimers.push(setTimeout(() => { roundEndOverlay.hidden = true; }, ALLTIME_WINDOW_MS));
+    }, ROUND_WINDOW_MS));
   }
   document.getElementById('roundEndCloseBtn').addEventListener('click', hideRoundEnd);
-  document.getElementById('roundEndNewGameBtn').addEventListener('click', () => startNewGame());
+  roundEndNewGameBtn.addEventListener('click', () => startNewGame());
 
+  // ---- Leaderboard window (trophy button): This Round / All-Time tabs ----------
   const leaderboardOverlay = document.getElementById('leaderboardOverlay');
-  const leaderboardModalList = document.getElementById('leaderboardModalList');
+  const modalRoundList = document.getElementById('leaderboardModalRoundList');
+  const modalAllTimeList = document.getElementById('leaderboardModalAllTimeList');
+  const lbTabs = document.querySelectorAll('.lb-modal-tab');
+  function renderLeaderboardModal() {
+    fillScoreList(modalRoundList, lastLeaderboard.round, 'window');
+    fillScoreList(modalAllTimeList, lastLeaderboard.allTime, 'window');
+  }
   function closeLeaderboardModal() { leaderboardOverlay.hidden = true; }
   function openLeaderboardModal() {
-    fillScoreList(leaderboardModalList, lastLeaderboard.slice(0, 20), true);
+    renderLeaderboardModal();
     leaderboardOverlay.hidden = false;
   }
+  lbTabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      lbTabs.forEach((b) => b.classList.toggle('active', b === btn));
+      const tab = btn.getAttribute('data-lb-tab');
+      modalRoundList.hidden = tab !== 'round';
+      modalAllTimeList.hidden = tab !== 'alltime';
+    });
+  });
   document.getElementById('leaderboardTopBtn').addEventListener('click', openLeaderboardModal);
   document.getElementById('leaderboardModalCloseBtn').addEventListener('click', closeLeaderboardModal);
-  [roundEndOverlay, leaderboardOverlay].forEach((ov) => {
-    ov.addEventListener('click', (e) => { if (e.target === ov) ov.hidden = true; });
-  });
+  // Clicking the dim area outside a window closes it.
+  roundEndOverlay.addEventListener('click', (e) => { if (e.target === roundEndOverlay) hideRoundEnd(); });
+  leaderboardOverlay.addEventListener('click', (e) => { if (e.target === leaderboardOverlay) closeLeaderboardModal(); });
 
   const settingsOverlay = document.getElementById('settingsOverlay');
   function openSettings() { settingsOverlay.hidden = false; }
@@ -448,6 +594,7 @@
   function startNewGame() {
     socket.emit('host:newGame', { level: currentLevel });
     hideRoundEnd();
+    clearAutoNextCountdown();
     closeSettings();
   }
   document.getElementById('newGameBtn').addEventListener('click', startNewGame);
@@ -463,21 +610,36 @@
       lastGameId = state.gameId;
       syncDifficulty(state.level);
       hideRoundEnd();
+      clearAutoNextCountdown();
     }
+    autoNextToggle.checked = !!state.autoNext;
+    botsToggle.checked = !!state.botsOn;
+    roundEndNewGameBtn.hidden = !!state.autoNext;
+    if (!state.autoNext) clearAutoNextCountdown();
     showMode(state.mode);
     renderGrid(state);
     renderTopline(state);
     renderDiagnostics(state);
   });
 
-  socket.on('leaderboard', (list) => {
-    lastLeaderboard = list || [];
-    fillScoreList(leaderboardListEl, lastLeaderboard.slice(0, 20), false);
-    if (!leaderboardOverlay.hidden) fillScoreList(leaderboardModalList, lastLeaderboard.slice(0, 20), true);
+  socket.on('leaderboard', (data) => {
+    lastLeaderboard = { round: (data && data.round) || [], allTime: (data && data.allTime) || [] };
+    fillScoreList(leaderboardListEl, lastLeaderboard.round.slice(0, 20), 'inline');
+    fillScoreList(allTimeListEl, lastLeaderboard.allTime.slice(0, 50), 'inline');
+    if (!leaderboardOverlay.hidden) renderLeaderboardModal();
   });
 
-  socket.on('guessResult', addFeedItem);
-  socket.on('gameOver', showRoundEnd);
+  socket.on('guessResult', handleGuess);
+  socket.on('gameOver', showRoundEndSequence);
+  socket.on('autoNextCountdown', (d) => startAutoNextCountdown(d && d.seconds ? d.seconds : 10));
+
+  autoNextToggle.addEventListener('change', () => {
+    socket.emit('host:setAutoNext', { enabled: autoNextToggle.checked });
+    if (!autoNextToggle.checked) clearAutoNextCountdown();
+  });
+  botsToggle.addEventListener('change', () => {
+    socket.emit('host:setBots', { enabled: botsToggle.checked });
+  });
 
   // ---- Live connect / test / offline / host console --------------------------------
   document.getElementById('connectLiveBtn').addEventListener('click', () => {

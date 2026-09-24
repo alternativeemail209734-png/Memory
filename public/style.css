@@ -975,7 +975,7 @@ html, body {
   padding: 5px;
   /* Never wider than the screen, never taller than what is left under the
      toolbar, so tall boards (Chaos) still fit on a phone without scrolling. */
-  width: min(100%, var(--grid-max), max(200px, calc((var(--vh) * 100 - 260px) * var(--cols) / var(--rows))));
+  width: min(100%, var(--grid-max), max(200px, calc((var(--vh) * 100 - 310px) * var(--cols) / var(--rows))));
   aspect-ratio: var(--cols) / var(--rows);
   background: var(--bg-input);
   border: 2px solid var(--cyan);
@@ -1079,3 +1079,7 @@ html, body {
   .card.matched .card-front { animation: none; }
   .guess-toast, .round-end-card { animation: none; }
 }
+
+/* Test panel's bot switch sits last in its panel, so it needs no bottom gap. */
+.bot-auto-solve-toggle { margin-bottom: 0; }
+.round-end-countdown[hidden] { display: none; }

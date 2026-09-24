@@ -1,24 +1,23 @@
-# What changed in this build (part 1 of 3)
+# What changed (parts 1 and 2 of 3)
 
-The Memory game now follows the look and layout of the Sudoku game. The game rules are unchanged.
+The Memory game follows the look and layout of the Sudoku game. The game rules are unchanged.
 
-## Part 1 (this build): look, layout and controls
-- 8 colour themes (Dark, Light, Cream, Sky Blue, Meadow Green, Blossom Pink, Lavender Violet, Honey Gold). Your choice is remembered on the device.
-- New top bar with small icon buttons: difficulty badge, new game, leaderboard, theme, full screen, settings.
-- Settings panel (slides up from the bottom): themes, Offline / Test / Live tabs, TikTok connect, new game, how to play.
-- Board redesigned: framed board, cards sized to fit any phone (even Chaos, 8 x 12), a red outline on a wrong pair, a small pop on a match.
-- Status line with connection dot, pairs found (for example 4/18) and a stopwatch that stops when the game is finished.
-- "Leaderboard & Activity" panel: diagnostics, this round's scores, and a feed showing what happened to each guess (match, no match, already flipped, too soon, not a card number, not two numbers).
-- Host Console can be hidden and brought back, and remembers its state.
-- Full screen button.
-- All-matched window with the top scorers and the time taken, and a Start New Game button.
+## Part 2 (this build): the live show
+- **Guess pop-ups:** every guess shows a small pill above the board with the viewer's round photo, name and result. One pill at a time, so the board never jumps.
+- **Viewer photos:** real TikTok photos when TikTok provides them. Otherwise a coloured circle with the viewer's initials.
+- **Photos and names** also appear in the leaderboards and the recent guesses.
+- **All-Time Leaderboard:** points keep adding up across games. See it under the board, and in the trophy window (tabs: This Round / All-Time).
+- **Round-end window:** this round's top scorers (5 seconds), then the all-time top scorers (5 seconds), then it closes by itself. The X closes it early.
+- **Auto Next Game:** a switch in Settings. A new game starts 10 seconds after each win, with a countdown on screen.
+- **Auto-Play (Bots):** a switch in the Test tab. Four fake viewers keep guessing until every pair is found. With Auto Next Game on, the game runs hands-free.
+- Scores now belong to the viewer's TikTok ID, so a viewer who changes their display name keeps their points.
 
-## Small fixes
-- Picking a difficulty no longer snaps back to the old one when the next guess arrives.
-- A wrong pair from the last game can no longer unlock the next game early.
-- Test Mode "Simulate" now only picks cards that are still face down.
-- Guesses are ignored once the game is finished, until a new game starts.
+## Things to know
+- All-Time scores live in the game's memory. They start again when the game restarts on Render.
+- Test bots only run in Test mode. Switching to Offline or Live turns them off.
+
+## Part 1: look, layout and controls
+- 8 colour themes, a compact top bar, a Settings panel, a redesigned board, status line with stopwatch, Leaderboard & Activity panel, hideable Host Console and full screen.
 
 ## Planned next
-- Part 2: live guess pop-ups with viewer photos, all-time leaderboard, auto next round, test bots.
 - Part 3: stronger TikTok connection handling, hint/reveal buttons, timing settings, save-as-default settings.

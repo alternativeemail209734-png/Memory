@@ -55,12 +55,19 @@
   </div>
 
   <main class="board-stage">
+    <!-- Live guess feed: one floating pill per incoming guess, with the
+         viewer's round photo, name and points. Its height is reserved so
+         the board never jumps when a pill appears or leaves. -->
+    <div id="liveGuessToastArea" class="live-guess-toast-area" aria-live="polite"></div>
+
     <div class="puzzle-topline">
       <span id="liveStatusMini" class="live-status-mini status-idle">&#9679; Offline</span>
       <span id="pairsCounter" class="pairs-counter">&#127183; 0/0 pairs</span>
       <span id="solvedBanner" class="solved-banner" hidden>ALL MATCHED!</span>
       <span id="stopwatch" class="stopwatch" title="Time elapsed - there is no time limit">&#9201; 00:00</span>
     </div>
+
+    <div id="autoNextCountdown" class="auto-next-countdown" hidden></div>
 
     <div id="memoryGrid" class="memory-grid"></div>
 
@@ -76,6 +83,11 @@
       <div class="leaderboard-box">
         <h3>This Round (1 pt / pair found)</h3>
         <ol id="leaderboardList"></ol>
+      </div>
+
+      <div class="leaderboard-box">
+        <h3>All-Time Leaderboard</h3>
+        <ol id="allTimeLeaderboardList"></ol>
       </div>
 
       <div class="feed-box">
@@ -99,15 +111,17 @@
     </div>
   </footer>
 
-  <!-- Round-end window: shown when the last pair is found. -->
+  <!-- Round-end window: shows this round's top scorers, then the all-time
+       top scorers, then closes by itself. Close early with the X. -->
   <div id="roundEndOverlay" class="round-end-overlay" hidden>
     <div class="round-end-card">
       <div class="round-end-head">
-        <h2>All matched!</h2>
+        <h2 id="roundEndTitle">This Round's Top Scorers</h2>
         <button id="roundEndCloseBtn" class="icon-btn" aria-label="Close">&#10005;</button>
       </div>
       <p id="roundEndSummary" class="round-end-summary"></p>
       <ol id="roundEndList" class="round-end-list"></ol>
+      <div id="roundEndCountdown" class="round-end-countdown" hidden></div>
       <div class="round-end-actions">
         <button id="roundEndNewGameBtn" class="btn btn-primary">Start New Game</button>
       </div>
@@ -118,11 +132,15 @@
   <div id="leaderboardOverlay" class="round-end-overlay" hidden>
     <div class="round-end-card">
       <div class="round-end-head">
-        <h2>Leaderboard</h2>
+        <h2>Leaderboards</h2>
         <button id="leaderboardModalCloseBtn" class="icon-btn" aria-label="Close">&#10005;</button>
       </div>
-      <p class="round-end-summary">This round</p>
-      <ol id="leaderboardModalList" class="round-end-list"></ol>
+      <div class="leaderboard-modal-tabs">
+        <button type="button" class="lb-modal-tab active" data-lb-tab="round">This Round</button>
+        <button type="button" class="lb-modal-tab" data-lb-tab="alltime">All-Time</button>
+      </div>
+      <ol id="leaderboardModalRoundList" class="round-end-list"></ol>
+      <ol id="leaderboardModalAllTimeList" class="round-end-list capped-20" hidden></ol>
     </div>
   </div>
 
@@ -179,6 +197,14 @@
           <input id="testCustomText" type="text" placeholder="Or type a fake comment, e.g. 1 5" autocomplete="off">
           <button id="testCustomBtn" class="btn btn-secondary">Send As Fake Viewer</button>
         </div>
+        <label class="auto-next-toggle bot-auto-solve-toggle">
+          <input type="checkbox" id="botsToggle">
+          <span class="toggle-switch" aria-hidden="true"></span>
+          <span class="toggle-label">
+            Auto-Play (Bots)
+            <small>A few fake viewers keep guessing on their own until every pair is found.</small>
+          </span>
+        </label>
       </section>
 
       <section class="panel offline-panel" data-panel="offline">
@@ -191,6 +217,15 @@
       </section>
 
       <div class="settings-divider"></div>
+
+      <label class="auto-next-toggle">
+        <input type="checkbox" id="autoNextToggle">
+        <span class="toggle-switch" aria-hidden="true"></span>
+        <span class="toggle-label">
+          Auto Next Game
+          <small>Automatically starts a new game a few seconds after every win.</small>
+        </span>
+      </label>
 
       <div class="puzzle-controls">
         <select id="difficultySelect" aria-label="Difficulty">
@@ -210,7 +245,7 @@
           <li><span class="htp-icon">&#127183;</span><span>Both cards flip over. If the pictures match, they stay open</span></li>
           <li><span class="htp-icon">&#10060;</span><span>If they don't match, they flip back after a moment</span></li>
           <li><span class="htp-icon">&#128161;</span><span>A comma works too: <span class="mono highlight">1, 5</span></span></li>
-          <li><span class="htp-icon">&#11088;</span><span>Each pair you find earns <b>1 point</b></span></li>
+          <li><span class="htp-icon">&#11088;</span><span>Each pair you find earns <b>1 point</b>. The leaderboards keep count</span></li>
           <li><span class="htp-icon">&#9200;</span><span>No time limit - the clock just shows how long each game takes</span></li>
         </ol>
       </div>

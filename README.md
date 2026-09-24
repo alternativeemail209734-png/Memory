@@ -30,6 +30,10 @@ Open your Render link on your phone or PC.
 - Tap **Settings** (the gear) to pick Offline, Test or Live mode, and to connect TikTok.
 - **Host Console** at the bottom lets you type guesses yourself. Tap **Hide** to hide it, and **Console** to bring it back.
 - Tap **Leaderboard & Activity** under the board to see the scores and every recent guess.
+- Tap the trophy for the leaderboard window. It has two tabs: **This Round** and **All-Time**.
+- When the last pair is found, a window shows this round's top scorers, then the all-time top scorers, then closes by itself.
+- In Settings, turn on **Auto Next Game** and a new game starts 10 seconds after each win.
+- In Settings, open the **Test** tab and turn on **Auto-Play (Bots)** to watch fake viewers play whole games on their own.
 
 ## Going Live on TikTok
 
@@ -51,4 +55,5 @@ Open your Render link on your phone or PC.
 
 - **Raw Events stays at 0 in Live mode:** the username or key may be wrong. Check the red message in Settings.
 - **The first load is slow:** free Render games go to sleep. Wait about 30 seconds.
+- **All-Time scores start again from zero** whenever the game restarts on Render. This happens after a free game goes to sleep, and after you upload new files.
 - **Want more changes?** Upload this folder back to Claude and say what you want.

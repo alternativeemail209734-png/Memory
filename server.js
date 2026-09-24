@@ -65,7 +65,19 @@ const EMOJI_POOL = [
   '🍕', '🍔', '🍟', '🌮', '🍩', '🍪', '🎂', '🍭',
 ];
 
-const MISMATCH_SHOW_MS = 1100; // how long a wrong pair stays face-up
+const MISMATCH_SHOW_MS = 1100;      // how long a wrong pair stays face-up
+const AUTO_NEXT_DELAY_MS = 10000;   // pause before the next game starts by itself
+const BOT_TICK_MS = 700;            // how often a test bot makes a guess
+const BOT_CORRECT_CHANCE = 0.7;     // how often a bot picks a real pair
+
+// Fake viewers used by Test Mode "Auto-Play (Bots)".
+const BOTS = [
+  { uniqueId: 'bot-alpha', name: 'Bot Alpha', avatar: null },
+  { uniqueId: 'bot-bravo', name: 'Bot Bravo', avatar: null },
+  { uniqueId: 'bot-charlie', name: 'Bot Charlie', avatar: null },
+  { uniqueId: 'bot-delta', name: 'Bot Delta', avatar: null },
+];
+const HOST_PLAYER = { uniqueId: 'host', name: 'Host', avatar: null };
 
 // ---------------------------------------------------------------------------
 // GAME STATE (single shared match — everyone in chat plays together)
@@ -80,11 +92,18 @@ const state = {
   solvedAt: null,         // ms timestamp when the last pair was found
   cards: [],              // [{ id, emoji, flipped, matched }]
   locked: false,          // true while a mismatched pair is briefly shown
-  scores: {},             // { username: matchCount }
+  scores: {},             // this game:  { uniqueId: { uniqueId, name, avatar, points } }
+  allTimeScores: {},      // every game since the server started (same shape)
+  autoNext: false,        // start the next game by itself after each win
+  botsOn: false,          // Test Mode bots are playing
   rawEventCount: 0,
   lastEvent: { user: '', text: '' },
   tiktok: { connected: false, uniqueId: null, connecting: false, lastError: null },
 };
+
+const avatarCache = {};   // uniqueId -> last known photo URL
+let autoNextTimer = null;
+let botTimer = null;
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -95,6 +114,7 @@ function shuffle(arr) {
 }
 
 function newGame(level) {
+  cancelAutoNext();
   const key = Number(level) in LEVELS ? Number(level) : 2;
   const cfg = LEVELS[key];
   state.level = key;
@@ -114,11 +134,11 @@ function newGame(level) {
   state.startedAt = Date.now();
   state.solvedAt = null;
   broadcast();
+  emitLeaderboards();
 }
 
 function broadcast() {
   io.emit('state', publicState());
-  io.emit('leaderboard', leaderboard());
 }
 
 // Never leak emoji identities for un-flipped, un-matched cards to the client.
@@ -137,6 +157,8 @@ function publicState() {
     matchedPairs: matchedCards / 2,
     totalPairs: state.cards.length / 2,
     locked: state.locked,
+    autoNext: state.autoNext,
+    botsOn: state.botsOn,
     rawEventCount: state.rawEventCount,
     lastEvent: state.lastEvent,
     tiktok: state.tiktok,
@@ -149,11 +171,47 @@ function publicState() {
   };
 }
 
-function leaderboard() {
-  return Object.entries(state.scores)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 50)
-    .map(([user, score]) => ({ user, score }));
+// ---- Scores ---------------------------------------------------------------
+function ensurePlayer(table, p) {
+  if (!table[p.uniqueId]) {
+    table[p.uniqueId] = { uniqueId: p.uniqueId, name: p.name || p.uniqueId, avatar: p.avatar || null, points: 0 };
+  }
+  const row = table[p.uniqueId];
+  if (p.name) row.name = p.name;
+  if (p.avatar) row.avatar = p.avatar;
+  return row;
+}
+
+function rankList(table, limit) {
+  return Object.values(table)
+    .filter((r) => r.points > 0)
+    .sort((a, b) => b.points - a.points)
+    .slice(0, limit)
+    .map((r) => ({ uniqueId: r.uniqueId, name: r.name, avatar: r.avatar, points: r.points }));
+}
+
+function emitLeaderboards() {
+  io.emit('leaderboard', {
+    round: rankList(state.scores, 50),
+    allTime: rankList(state.allTimeScores, 100),
+  });
+}
+
+// ---- Auto next game -------------------------------------------------------
+function cancelAutoNext() {
+  if (autoNextTimer) {
+    clearTimeout(autoNextTimer);
+    autoNextTimer = null;
+  }
+}
+
+function scheduleAutoNext() {
+  cancelAutoNext();
+  io.emit('autoNextCountdown', { seconds: Math.round(AUTO_NEXT_DELAY_MS / 1000) });
+  autoNextTimer = setTimeout(() => {
+    autoNextTimer = null;
+    try { newGame(state.level); } catch (e) { console.error('[ERR] auto next game:', e); }
+  }, AUTO_NEXT_DELAY_MS);
 }
 
 // ---------------------------------------------------------------------------
@@ -161,7 +219,7 @@ function leaderboard() {
 // Always returns { kind } so the screen can say what happened to each guess:
 //   match | miss | busy | taken | invalid
 // ---------------------------------------------------------------------------
-function attemptFlip(aId, bId, user) {
+function attemptFlip(aId, bId, player) {
   try {
     if (state.solvedAt) return { kind: 'busy' };            // game already finished
     if (state.locked) return { kind: 'busy' };              // a mismatch is on display
@@ -178,17 +236,21 @@ function attemptFlip(aId, bId, user) {
     if (a.emoji === b.emoji) {
       a.matched = true;
       b.matched = true;
-      state.scores[user] = (state.scores[user] || 0) + 1;
+      ensurePlayer(state.scores, player).points += 1;
+      ensurePlayer(state.allTimeScores, player).points += 1;
       const won = state.cards.every((c) => c.matched);
       if (won) state.solvedAt = Date.now();
       broadcast();
+      emitLeaderboards();
       if (won) {
         io.emit('gameOver', {
-          leaderboard: leaderboard(),
+          leaderboard: rankList(state.scores, 50),
+          allTimeLeaderboard: rankList(state.allTimeScores, 100),
           elapsedMs: state.solvedAt - state.startedAt,
           totalPairs: state.cards.length / 2,
           levelName: LEVELS[state.level].name,
         });
+        if (state.autoNext) scheduleAutoNext();
       }
       return { kind: 'match' };
     }
@@ -218,14 +280,32 @@ function attemptFlip(aId, bId, user) {
 // CHAT PARSING — fallback chain across plausible field names, since the
 // live-connector's payload shape can vary by version.
 // ---------------------------------------------------------------------------
-function extractUser(evt) {
-  return (
-    (evt.user && (evt.user.uniqueId || evt.user.nickname)) ||
-    evt.uniqueId ||
-    evt.nickname ||
-    evt.userId ||
-    'viewer'
-  );
+function firstUrl(obj) {
+  if (!obj) return null;
+  if (typeof obj === 'string') return obj;
+  if (Array.isArray(obj) && obj.length) return typeof obj[0] === 'string' ? obj[0] : null;
+  if (obj.urlList && obj.urlList.length) return obj.urlList[0];
+  if (Array.isArray(obj.url) && obj.url.length) return obj.url[0];
+  if (typeof obj.url === 'string') return obj.url;
+  if (obj.urls && obj.urls.length) return obj.urls[0];
+  return null;
+}
+
+// Who sent this comment: id, display name and (when TikTok gives one) photo.
+function extractPlayer(evt) {
+  const u = (evt && evt.user) || {};
+  const uniqueId = String(u.uniqueId || evt.uniqueId || u.userId || u.id || evt.userId || 'viewer');
+  const name = String(u.nickname || u.nickName || evt.nickname || u.uniqueId || evt.uniqueId || uniqueId);
+  const avatar =
+    firstUrl(u.profilePicture) ||
+    firstUrl(u.avatarThumbnail) ||
+    firstUrl(u.avatarMedium) ||
+    firstUrl(u.avatarLarger) ||
+    (typeof u.avatarUrl === 'string' ? u.avatarUrl : null) ||
+    (typeof u.profilePictureUrl === 'string' ? u.profilePictureUrl : null) ||
+    (typeof evt.profilePictureUrl === 'string' ? evt.profilePictureUrl : null) ||
+    null;
+  return { uniqueId, name, avatar };
 }
 
 function extractText(evt) {
@@ -242,14 +322,20 @@ function parseTwoNumbers(text) {
   return [a, b];
 }
 
-function handleIncomingComment(user, text, { countsAsRawEvent = true } = {}) {
+// player = { uniqueId, name, avatar }
+function handleIncomingComment(player, text, { countsAsRawEvent = true } = {}) {
   try {
+    if (player.avatar) avatarCache[player.uniqueId] = player.avatar;
+    else player.avatar = avatarCache[player.uniqueId] || null;
+
     if (countsAsRawEvent) state.rawEventCount += 1;
-    state.lastEvent = { user, text };
+    state.lastEvent = { user: player.name, text };
     const pair = parseTwoNumbers(text);
-    const result = pair ? attemptFlip(pair[0], pair[1], user) : { kind: 'format' };
+    const result = pair ? attemptFlip(pair[0], pair[1], player) : { kind: 'format' };
     io.emit('guessResult', {
-      user,
+      uniqueId: player.uniqueId,
+      name: player.name,
+      avatar: player.avatar,
       text: String(text || '').slice(0, 60),
       kind: result.kind,
       a: pair ? pair[0] : null,
@@ -259,6 +345,50 @@ function handleIncomingComment(user, text, { countsAsRawEvent = true } = {}) {
   } catch (e) {
     console.error('[ERR] handleIncomingComment:', e);
   }
+}
+
+// ---------------------------------------------------------------------------
+// TEST MODE BOTS — fake viewers that keep playing until the board is done,
+// so you can watch whole rounds (and the auto next game) without touching
+// anything.
+// ---------------------------------------------------------------------------
+function botTick() {
+  if (state.mode !== 'test' || state.solvedAt || state.locked) return;
+  const open = state.cards.filter((c) => !c.matched && !c.flipped);
+  if (open.length < 2) return;
+  const bot = BOTS[Math.floor(Math.random() * BOTS.length)];
+  let a = null;
+  let b = null;
+  if (Math.random() < BOT_CORRECT_CHANCE) {
+    const byEmoji = {};
+    open.forEach((c) => { (byEmoji[c.emoji] = byEmoji[c.emoji] || []).push(c.id); });
+    const pairs = Object.values(byEmoji).filter((ids) => ids.length >= 2);
+    if (pairs.length) {
+      const pick = pairs[Math.floor(Math.random() * pairs.length)];
+      a = pick[0];
+      b = pick[1];
+    }
+  }
+  if (a === null) {
+    const ids = shuffle(open.map((c) => c.id));
+    a = ids[0];
+    b = ids[1];
+  }
+  handleIncomingComment({ ...bot }, `${a} ${b}`, { countsAsRawEvent: false });
+}
+
+function setBots(enabled) {
+  state.botsOn = !!enabled;
+  if (botTimer) {
+    clearInterval(botTimer);
+    botTimer = null;
+  }
+  if (state.botsOn) {
+    botTimer = setInterval(() => {
+      try { botTick(); } catch (e) { console.error('[ERR] bot tick:', e); }
+    }, BOT_TICK_MS);
+  }
+  broadcast();
 }
 
 // ---------------------------------------------------------------------------
@@ -329,10 +459,10 @@ function connectTikTok(uniqueId, apiKey, attemptsLeft = 3) {
       conn.on(type, (evt) => {
         try {
           if (type === 'chat') {
-            const user = extractUser(evt);
+            const player = extractPlayer(evt);
             const text = extractText(evt);
             console.log('[TIKTOK RAW CHAT]', JSON.stringify(evt).slice(0, 500));
-            handleIncomingComment(user, text);
+            handleIncomingComment(player, text);
           } else {
             state.rawEventCount += 1;
             broadcast();
@@ -375,7 +505,10 @@ function connectTikTok(uniqueId, apiKey, attemptsLeft = 3) {
 // ---------------------------------------------------------------------------
 io.on('connection', (socket) => {
   socket.emit('state', publicState());
-  socket.emit('leaderboard', leaderboard());
+  socket.emit('leaderboard', {
+    round: rankList(state.scores, 50),
+    allTime: rankList(state.allTimeScores, 100),
+  });
 
   socket.on('host:newGame', (payload) => {
     try { newGame((payload || {}).level); } catch (e) { console.error('[ERR] host:newGame', e); }
@@ -386,17 +519,33 @@ io.on('connection', (socket) => {
       const mode = (payload || {}).mode;
       if (['offline', 'test', 'live'].includes(mode)) {
         if (mode !== 'live' && state.tiktok.connected) disconnectTikTok();
+        if (mode !== 'test' && state.botsOn) setBots(false);
         state.mode = mode;
         broadcast();
       }
     } catch (e) { console.error('[ERR] host:setMode', e); }
   });
 
-  // Manual chat simulation from the Host console (works in any mode).
+  socket.on('host:setAutoNext', (payload) => {
+    try {
+      state.autoNext = !!(payload && payload.enabled);
+      if (!state.autoNext) cancelAutoNext();
+      else if (state.solvedAt && !autoNextTimer) scheduleAutoNext();
+      broadcast();
+    } catch (e) { console.error('[ERR] host:setAutoNext', e); }
+  });
+
+  socket.on('host:setBots', (payload) => {
+    try { setBots(!!(payload && payload.enabled) && state.mode === 'test'); } catch (e) { console.error('[ERR] host:setBots', e); }
+  });
+
+  // Manual chat from the Host console / Offline box / Test box (any mode).
   socket.on('host:manualInput', (payload) => {
     try {
       const p = payload || {};
-      handleIncomingComment(p.user || 'Host', p.text);
+      const name = String(p.user || 'Host').slice(0, 30);
+      const player = name === 'Host' ? { ...HOST_PLAYER } : { uniqueId: 'named-' + name.toLowerCase(), name, avatar: null };
+      handleIncomingComment(player, p.text);
     } catch (e) { console.error('[ERR] host:manualInput', e); }
   });
 
@@ -404,14 +553,13 @@ io.on('connection', (socket) => {
   // only from cards that are still face-down so every click does something.
   socket.on('test:simulate', () => {
     try {
-      const fakeUsers = ['fan_88', 'tiktoker_x', 'lurker99', 'newbie123', 'catlover', 'giftgiver', 'anon_viewer'];
-      const user = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
+      const fake = BOTS[Math.floor(Math.random() * BOTS.length)];
       const open = state.cards.filter((c) => !c.matched && !c.flipped).map((c) => c.id);
       if (open.length < 2) return;
       shuffle(open);
       const [a, b] = open;
       const text = Math.random() > 0.5 ? `${a} ${b}` : `${a}, ${b}`;
-      handleIncomingComment(user, text);
+      handleIncomingComment({ ...fake }, text);
     } catch (e) { console.error('[ERR] test:simulate', e); }
   });
 
@@ -424,10 +572,6 @@ io.on('connection', (socket) => {
 
   socket.on('tiktok:disconnect', () => {
     try { disconnectTikTok(); } catch (e) { console.error('[ERR] tiktok:disconnect', e); }
-  });
-
-  socket.on('request:leaderboard', () => {
-    socket.emit('leaderboard', leaderboard());
   });
 });
 
