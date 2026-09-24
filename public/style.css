@@ -1402,3 +1402,13 @@ html, body {
 .live-score-list { list-style: none; margin: 0; padding: 0; }
 .live-score-list li { display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 2px 0; }
 .live-score-list .avatar-circle { width: 20px; height: 20px; }
+
+
+/* ---- Part 10: no glistening / flashing (light-sensitivity friendly) ----
+   No shimmer sweep, no twinkling star, no sparkle bursts. Tiles keep a
+   static soft highlight only. Only slow, gentle motion (float / breathe)
+   remains, with no brightness changes. */
+.card-back::before { display: none; animation: none; }
+.card-back::after { animation: none; opacity: 0.7; transform: none; }
+.card.matched .card-front::before,
+.card.matched .card-front::after { display: none; animation: none; }

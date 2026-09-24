@@ -1,4 +1,10 @@
-# What changed (part 9)
+# What changed (part 10)
+
+- **No glistening or flashing:** removed the shimmer sweep across tiles, the twinkling corner star and the sparkle burst on matches. The corner star is now still. The only motion left is a slow, gentle float on face-down tiles and a slow breathing of face-up pictures, with no brightness changes.
+- **Space & Sky** now includes celestial objects: comet/meteor, all eight moon phases, ringed planet, three Earths, galaxy, shooting star, sun, UFO, satellite, telescope and more, alongside the sky and weather pictures.
+- **Two new packs:** Vehicles & Travel (cars, trains, planes, boats and so on) and Buildings & Places (houses, landmarks, mountains, beaches and so on). Every pack has 48 pictures and no picture appears in any other pack. To keep that true, the job tools in Careers & Occupations now use tools like fire extinguisher, broom, axe and gear instead of vehicles.
+
+# Part 9
 
 - **No repeated pictures between symbol packs:** every pack has 48 pictures and no picture appears in any other pack. Classic Mix is now flowers, plants, toys, music and sports; Animals, Sweets & Treats, Space & Sky, Holiday & Celebration and Faces & Fun are each fully their own.
 - **New pack: Careers & Occupations** - doctor, farmer, chef, teacher, pilot, astronaut, firefighter, police and more, plus their tools (stethoscope, hammer, fire truck, camera and so on).
