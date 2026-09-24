@@ -1,11 +1,15 @@
-# What changed (part 5 of 5)
+# What changed (part 6 of 6)
 
-Part 5 replaces the single "everything is pink, matches are green" tile coloring with a full rainbow. Nothing about how the game plays, connects or scores has changed.
+Part 6 replaces the glossy "candy button" tiles and the rainbow board with a calmer, minimalist look. Nothing about how the game plays, connects or scores has changed.
 
-## Part 5 (this build): a rainbow board
-- **Tiles are no longer all one color.** Every tile - face-down or matched - gets one of six colors, repeating across the board like a bag of candy, instead of every tile-back being pink and every match being green.
-- **Still fully theme-matched:** each of the six colors is the active theme's own pink/green rotated around the color wheel, not a fixed hardcoded palette - so switching themes re-tints the whole rainbow, not just one color.
-- **Clearer status cues, not weaker ones:** since matched tiles now keep their own color instead of all turning green, a matched pair gets a warm gold glow around the whole tile so "you got it" still reads instantly at a glance. A wrong pair still gets a plain red ring, also unaffected by the tile's own color.
+## Part 6 (this build): minimalist, cute tiles
+- **Flat instead of glossy:** no more gradients, gloss, polka-dot texture, or corner sparkles/hearts. Tiles are a simple soft-rounded shape with one gentle shadow.
+- **Quiet two-tone variety instead of one flat color or a full rainbow:** face-down tiles alternate between two soft pastel tones across the board (one leaning on the theme's pink, one on its cyan), so it's not a wall of one color, but it's not a loud rainbow either.
+- **Calmer status cues:** a matched pair gets a soft pastel-green tint and a thin green border (no gold glow); a wrong pair gets a quick, quiet shake instead of a red ring.
+- **Still fully theme-matched:** every tile color is computed from the active theme's own pink/cyan/green, so it re-tints itself automatically for all 8 themes and light/dark mode.
+
+## Part 5: a rainbow board (superseded by Part 6, kept for history)
+Part 5 gave every tile its own color from a six-color rotation of the theme's pink/green, with a gold glow on matches and a red ring on misses. Part 6 replaced this with the calmer look above because it read as more cluttered than cute.
 
 ## Part 4: cute, glossy 3D tiles
 - **Tiles now look like little glossy candy buttons**, not flat rectangles: rounder corners, a soft shine near the top-left, a raised "gumdrop" edge underneath for real depth, and a gentle bounce as a card settles face-up.

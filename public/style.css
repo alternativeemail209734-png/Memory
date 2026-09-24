@@ -983,25 +983,23 @@ html, body {
   border-radius: 14px;
 }
 
-/* ---- Cute 3D tiles ------------------------------------------------------
-   Every color below is derived on the fly from the active theme's own
-   variables (--pink, --cyan, --bg-panel, --correct, --border) with
-   color-mix(), so the glossy/plush look re-tints itself automatically for
-   all 8 themes and light/dark mode - nothing here is hardcoded to one
-   palette. Depth comes from a stacked box-shadow (a soft ambient shadow
-   under the tile + a solid "gumdrop" edge a few pixels down) plus an
-   inset top highlight and a radial shine, the classic glossy-button
-   trick that reads as squishy and alive rather than a flat rectangle. */
+/* ---- Minimalist, cute tiles ---------------------------------------------
+   Flat, softly-rounded tiles instead of a glossy skeuomorphic look:
+   two gently tinted pastel tones (alternating by position, one leaning on
+   the theme's pink, one on its cyan) so the board has quiet variety
+   without turning into a wall of one color or a rainbow. Depth is just a
+   single soft ambient shadow plus a faint inset top edge - enough to
+   read as a raised tile, not a glossy candy button. Every color is
+   derived from the active theme's own variables with color-mix(), so it
+   re-tints itself for all 8 themes and light/dark mode automatically. */
 :root {
-  --tile-radius: 16px;
-  --card-back-hi:  color-mix(in srgb, var(--pink) 55%, white 45%);
-  --card-back-lo:  color-mix(in srgb, var(--pink) 78%, black 22%);
-  --card-back-edge: color-mix(in srgb, var(--pink) 60%, black 40%);
-  --card-front-hi: color-mix(in srgb, var(--bg-panel) 88%, white 12%);
-  --card-front-lo: var(--bg-panel);
-  --card-front-edge: color-mix(in srgb, var(--border) 55%, black 15%);
-  --card-match-hi: color-mix(in srgb, var(--correct) 68%, white 32%);
-  --card-match-edge: color-mix(in srgb, var(--correct) 60%, black 30%);
+  --tile-radius: 14px;
+  --tile-a: color-mix(in srgb, var(--pink) 32%, var(--bg-panel) 68%);
+  --tile-b: color-mix(in srgb, var(--cyan) 32%, var(--bg-panel) 68%);
+  --tile-a-edge: color-mix(in srgb, var(--pink) 45%, var(--border) 55%);
+  --tile-b-edge: color-mix(in srgb, var(--cyan) 45%, var(--border) 55%);
+  --tile-front: color-mix(in srgb, var(--bg-panel) 96%, white 4%);
+  --tile-match: color-mix(in srgb, var(--correct) 22%, var(--bg-panel) 78%);
 }
 
 .card {
@@ -1030,166 +1028,77 @@ html, body {
   backface-visibility: hidden;
   font-weight: 800;
   user-select: none;
-  overflow: hidden;
 }
-/* Both faces share a soft glossy highlight blob near the top-left, plus a
-   tiny polka-dot texture, as extra background layers (painted well below
-   the emoji/number text) - the classic "plasticky candy button" look. */
 .card-back {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.30) 10%, transparent 11%) 0 0 / 16px 16px,
-    radial-gradient(120% 90% at 30% 15%, rgba(255,255,255,0.55), rgba(255,255,255,0) 55%),
-    linear-gradient(160deg, var(--card-back-hi), var(--pink) 55%, var(--card-back-lo));
-  color: #fff;
+  background: var(--tile-a);
+  color: var(--text);
   font-size: var(--card-font-size);
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
   box-shadow:
-    0 5px 0 var(--card-back-edge),
-    0 7px 12px rgba(0,0,0,0.28),
-    inset 0 2px 0 rgba(255,255,255,0.35),
-    inset 0 -3px 6px rgba(0,0,0,0.15);
+    0 2px 5px rgba(0,0,0,0.16),
+    inset 0 1px 0 rgba(255,255,255,0.25);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-/* A tiny sparkle + a tiny heart tucked in opposite corners, well clear of
-   the centered number, so the tile-back feels like a little gift tag
-   rather than a plain colored square. */
-.card-back::before,
-.card-back::after {
-  position: absolute;
-  font-size: calc(var(--card-font-size) * 0.5);
-  line-height: 1;
-  color: rgba(255,255,255,0.65);
-  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
-  pointer-events: none;
+/* Alternate the two pastel tones by grid position - a quiet checkerboard
+   instead of one flat color, without going full rainbow. */
+.memory-grid > .card:nth-child(even) .card-back {
+  background: var(--tile-b);
 }
-.card-back::before { content: "✦"; top: 8%; left: 10%; }
-.card-back::after   { content: "♡"; bottom: 6%; right: 10%; }
 .card-front {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.10) 12%, transparent 13%) 0 0 / 20px 20px,
-    radial-gradient(120% 90% at 30% 15%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%),
-    linear-gradient(160deg, var(--card-front-hi), var(--card-front-lo) 60%);
+  background: var(--tile-front);
   border: 1px solid var(--border);
   transform: rotateY(180deg);
   font-size: calc(var(--card-font-size) * 1.5);
   line-height: 1;
-  box-shadow:
-    0 4px 0 var(--card-front-edge),
-    0 6px 10px rgba(0,0,0,0.22),
-    inset 0 2px 0 rgba(255,255,255,0.5);
-  /* The emoji itself gets its own soft drop-shadow so it looks like it's
-     sitting just above the tile rather than printed flat on it. */
-  filter: drop-shadow(0 2px 1px rgba(0,0,0,0.18));
-}
-/* A little sparkle tucked in a corner, clear of the centered emoji, so a
-   face-up tile feels like a tiny framed keepsake rather than a plain card. */
-.card-front::before,
-.card-front::after {
-  position: absolute;
-  font-size: calc(var(--card-font-size) * 0.4);
-  line-height: 1;
-  color: var(--cyan);
-  opacity: 0.55;
-  pointer-events: none;
-}
-.card-front::before { content: "✧"; top: 6%; right: 8%; }
-.card-front::after   { content: "✧"; bottom: 6%; left: 8%; }
-/* Matched tiles get a warmer, more festive pair of sparkles to celebrate. */
-.card.matched .card-front::before,
-.card.matched .card-front::after {
-  content: "✨";
-  color: #fff;
-  opacity: 0.75;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.14);
+  /* The emoji itself gets a soft drop-shadow so it sits gently above the
+     tile rather than printed flat on it - the one "alive" touch kept. */
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,0.15));
 }
 /* A gentle bounce as a face-up tile settles into place, on top of the
-   3D flip - this is what sells "alive" rather than a static swap. */
+   3D flip. */
 .card.flipped .card-front,
 .card.matched .card-front {
   animation: tileSettle 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes tileSettle {
-  0%   { transform: rotateY(180deg) scale(0.82); }
-  60%  { transform: rotateY(180deg) scale(1.06); }
+  0%   { transform: rotateY(180deg) scale(0.86); }
+  60%  { transform: rotateY(180deg) scale(1.04); }
   100% { transform: rotateY(180deg) scale(1); }
 }
+/* Matched: a quiet pastel-green tint and a thin success-colored border -
+   clear at a glance, without a glow or a heavy fill change. */
 .card.matched .card-front {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.14) 12%, transparent 13%) 0 0 / 20px 20px,
-    radial-gradient(120% 90% at 30% 15%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%),
-    linear-gradient(160deg, var(--card-match-hi), var(--correct) 55%, var(--card-match-edge));
-  border-color: var(--card-match-edge);
-  box-shadow:
-    0 4px 0 var(--card-match-edge),
-    0 6px 14px rgba(0,0,0,0.22),
-    inset 0 2px 0 rgba(255,255,255,0.45);
-  animation: matchPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-/* Host-facing hover/press: the tile "presses down" into its own shadow,
-   like a real squishy button, and lifts a touch on hover. Harmless on
-   touch devices (no hover state fires there). */
-.memory-grid:not(.locked) .card:not(.flipped):not(.matched):hover .card-back {
-  transform: translateY(-1px);
-  box-shadow:
-    0 6px 0 var(--card-back-edge),
-    0 10px 16px rgba(0,0,0,0.3),
-    inset 0 2px 0 rgba(255,255,255,0.35),
-    inset 0 -3px 6px rgba(0,0,0,0.15);
-}
-.memory-grid:not(.locked) .card:not(.flipped):not(.matched):active .card-back {
-  transform: translateY(3px);
-  box-shadow:
-    0 2px 0 var(--card-back-edge),
-    0 3px 6px rgba(0,0,0,0.25),
-    inset 0 2px 0 rgba(255,255,255,0.35),
-    inset 0 -3px 6px rgba(0,0,0,0.15);
-}
-/* A wrong pair stays face-up for a moment: ring the whole tile so viewers
-   see the miss - this lives on the outer .card wrapper (not the colored
-   face) so it always reads as pure red no matter which rainbow color the
-   tile itself has. */
-.memory-grid.locked .card.flipped:not(.matched) {
-  outline: 3px solid var(--danger);
-  outline-offset: -2px;
-  border-radius: var(--tile-radius);
-}
-/* A matched pair gets a warm gold glow around the whole tile - also on
-   the outer wrapper, so "you got it!" reads clearly even though matched
-   tiles now keep their own rainbow color instead of all turning green. */
-.card.matched {
-  border-radius: var(--tile-radius);
-  box-shadow: 0 0 0 3px rgba(255, 214, 92, 0.9), 0 0 16px 3px rgba(255, 195, 60, 0.55);
+  background: var(--tile-match);
+  border: 1.5px solid var(--correct);
+  animation: matchPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes matchPop {
   0%   { scale: 1; }
-  40%  { scale: 1.12; }
+  40%  { scale: 1.1; }
   100% { scale: 1; }
 }
-
-/* ---- Rainbow variety ----------------------------------------------------
-   Instead of every tile-back being the same pink and every matched tile
-   being the same green, each tile gets its own hue by rotating the
-   theme's own pink (back) and success (matched) colors around the color
-   wheel per grid position. Six colors, repeating across the board, so a
-   full grid reads like a bag of candy rather than a wall of one color -
-   and because it's a hue-rotate of the theme's own colors (not a fixed
-   hardcoded palette), it still re-tints correctly for every theme and
-   light/dark mode. The wrong-guess ring and matched glow live on the
-   outer .card wrapper (above), which is never hue-rotated, so those
-   status cues stay a true red/gold no matter the tile's own color. */
-.memory-grid > .card:nth-child(6n+1) .card-back { filter: hue-rotate(0deg); }
-.memory-grid > .card:nth-child(6n+2) .card-back { filter: hue-rotate(58deg); }
-.memory-grid > .card:nth-child(6n+3) .card-back { filter: hue-rotate(120deg); }
-.memory-grid > .card:nth-child(6n+4) .card-back { filter: hue-rotate(180deg); }
-.memory-grid > .card:nth-child(6n+5) .card-back { filter: hue-rotate(240deg); }
-.memory-grid > .card:nth-child(6n)   .card-back { filter: hue-rotate(300deg); }
-
-.memory-grid > .card:nth-child(6n+1) .card-front { filter: hue-rotate(0deg)   drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
-.memory-grid > .card:nth-child(6n+2) .card-front { filter: hue-rotate(58deg)  drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
-.memory-grid > .card:nth-child(6n+3) .card-front { filter: hue-rotate(120deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
-.memory-grid > .card:nth-child(6n+4) .card-front { filter: hue-rotate(180deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
-.memory-grid > .card:nth-child(6n+5) .card-front { filter: hue-rotate(240deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
-.memory-grid > .card:nth-child(6n)   .card-front { filter: hue-rotate(300deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
+/* Host-facing hover/press: a small, quiet lift/press rather than a big
+   skeuomorphic squish. Harmless on touch devices (no hover state fires). */
+.memory-grid:not(.locked) .card:not(.flipped):not(.matched):hover .card-back {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.memory-grid:not(.locked) .card:not(.flipped):not(.matched):active .card-back {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+/* A wrong pair stays face-up for a moment: rather than a bold red ring,
+   just a quick, quiet shake so it reads as "not that one" without
+   shouting about it. */
+.memory-grid.locked .card.flipped:not(.matched) .card-inner {
+  animation: wrongShake 0.35s ease;
+}
+@keyframes wrongShake {
+  0%, 100% { transform: rotateY(180deg) translateX(0); }
+  25%      { transform: rotateY(180deg) translateX(-3px); }
+  75%      { transform: rotateY(180deg) translateX(3px); }
+}
 
 .pairs-counter {
   font-size: 12px;
@@ -1236,6 +1145,7 @@ html, body {
   .card-inner { transition-duration: 0.01s; }
   .card.matched .card-front,
   .card.flipped .card-front { animation: none; }
+  .memory-grid.locked .card.flipped:not(.matched) .card-inner { animation: none; }
   .guess-toast, .round-end-card { animation: none; }
 }
 
