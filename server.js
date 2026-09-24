@@ -684,6 +684,21 @@ const LEVELS = {
 // starts a fresh game with the new set (same difficulty).
 // ---------------------------------------------------------------------------
 const EMOJI_PACKS = {
+  kawaii: {
+    label: 'Kawaii Stickers',
+    // Picture cards (public/symbols/*.png). "img:name:hue" = that picture, colour-shifted by hue degrees,
+    // so 12 drawn pictures give 48 clearly different ones for Chaos.
+    emojis: [
+      'img:heart:0', 'img:star:0', 'img:moon:0', 'img:drop:0', 'img:clover:0', 'img:cat:0',
+      'img:gem:0', 'img:donut:0', 'img:cloud:0', 'img:frog:0', 'img:mushroom:0', 'img:ghost:0',
+      'img:heart:120', 'img:star:120', 'img:moon:120', 'img:drop:120', 'img:clover:120', 'img:cat:120',
+      'img:gem:120', 'img:donut:120', 'img:cloud:120', 'img:frog:120', 'img:mushroom:120', 'img:ghost:120',
+      'img:heart:210', 'img:star:210', 'img:moon:210', 'img:drop:210', 'img:clover:210', 'img:cat:210',
+      'img:gem:210', 'img:donut:210', 'img:cloud:210', 'img:frog:210', 'img:mushroom:210', 'img:ghost:210',
+      'img:heart:300', 'img:star:300', 'img:moon:300', 'img:drop:300', 'img:clover:300', 'img:cat:300',
+      'img:gem:300', 'img:donut:300', 'img:cloud:300', 'img:frog:300', 'img:mushroom:300', 'img:ghost:300',
+    ],
+  },
   classic: {
     label: 'Classic Mix',
     emojis: [
@@ -746,7 +761,7 @@ const EMOJI_PACKS = {
     ],
   },
 };
-const DEFAULT_EMOJI_PACK = 'classic';
+const DEFAULT_EMOJI_PACK = 'kawaii';
 
 // Host-adjustable timings shared by every screen (seconds): default, min, max.
 const TIMING = {

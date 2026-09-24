@@ -242,6 +242,24 @@
     if (currentState) renderGrid(currentState);
   }
 
+  // Draws a card's picture: normal emoji text, or a Kawaii Stickers picture ("img:name:hue").
+  function setFace(front, sym) {
+    if (front.dataset.sym === sym) return;
+    front.dataset.sym = sym;
+    if (typeof sym === 'string' && sym.indexOf('img:') === 0) {
+      const p = sym.split(':');
+      const img = document.createElement('img');
+      img.src = '/symbols/' + p[1] + '.png';
+      img.alt = '';
+      img.draggable = false;
+      if (+p[2]) img.style.filter = 'hue-rotate(' + p[2] + 'deg)';
+      front.textContent = '';
+      front.appendChild(img);
+    } else {
+      front.textContent = sym;
+    }
+  }
+
   function renderGrid(state) {
     grid.style.setProperty('--cols', state.cols);
     grid.style.setProperty('--rows', state.rows);
@@ -254,8 +272,8 @@
       const peeked = !!(peekCards && peekCards.has(card.id) && !card.matched);
       ref.el.classList.toggle('flipped', !!card.flipped || peeked);
       ref.el.classList.toggle('matched', !!card.matched);
-      if (card.emoji) ref.front.textContent = card.emoji;
-      else if (peeked) ref.front.textContent = peekCards.get(card.id);
+      if (card.emoji) setFace(ref.front, card.emoji);
+      else if (peeked) setFace(ref.front, peekCards.get(card.id));
     });
     scaleCardFont(state.cols);
   }

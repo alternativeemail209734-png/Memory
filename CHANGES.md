@@ -1,4 +1,9 @@
-# What changed (part 7 of 7)
+# What changed (part 8)
+
+- **One uniform tile:** every tile is now the same soft pearl gradient (pink to sky) - no more two colour halves. It has a glossy highlight, a slow shimmer sweep, a twinkling star and a tiny float, all staggered so the board ripples. Colours follow the active theme.
+- **New Card Symbols pack, "Kawaii Stickers" (now the default):** the 12 cute pictures from your preview (heart, star, moon, drop, clover, cat, gem, donut, cloud, frog, mushroom, ghost). Chaos needs 48 different pictures, so the pack reuses the 12 in colour-shifted versions. Face-up pictures gently breathe. The other packs are unchanged.
+- Files now sit in the correct layout: `client.js`, `index.html`, `style.css` and the new `symbols/` pictures are in the `public` folder.
+
 
 Part 7 gives the board a fresh look again (not a return to Part 4 or Part 6), and adds two new features: combo/streak bonuses for viewers, and a Card Symbols picker so you can swap the whole deck's pictures. How the game connects, scores (aside from the new streak bonus) and is played is otherwise unchanged.
 
