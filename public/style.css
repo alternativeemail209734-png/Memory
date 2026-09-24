@@ -1032,11 +1032,12 @@ html, body {
   user-select: none;
   overflow: hidden;
 }
-/* Both faces share a soft glossy highlight blob near the top-left as an
-   extra background layer (painted well below the emoji/number text),
-   so they read as the same plasticky, rounded "candy button" material. */
+/* Both faces share a soft glossy highlight blob near the top-left, plus a
+   tiny polka-dot texture, as extra background layers (painted well below
+   the emoji/number text) - the classic "plasticky candy button" look. */
 .card-back {
   background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.30) 10%, transparent 11%) 0 0 / 16px 16px,
     radial-gradient(120% 90% at 30% 15%, rgba(255,255,255,0.55), rgba(255,255,255,0) 55%),
     linear-gradient(160deg, var(--card-back-hi), var(--pink) 55%, var(--card-back-lo));
   color: #fff;
@@ -1050,8 +1051,23 @@ html, body {
     inset 0 -3px 6px rgba(0,0,0,0.15);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+/* A tiny sparkle + a tiny heart tucked in opposite corners, well clear of
+   the centered number, so the tile-back feels like a little gift tag
+   rather than a plain colored square. */
+.card-back::before,
+.card-back::after {
+  position: absolute;
+  font-size: calc(var(--card-font-size) * 0.5);
+  line-height: 1;
+  color: rgba(255,255,255,0.65);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+.card-back::before { content: "✦"; top: 8%; left: 10%; }
+.card-back::after   { content: "♡"; bottom: 6%; right: 10%; }
 .card-front {
   background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.10) 12%, transparent 13%) 0 0 / 20px 20px,
     radial-gradient(120% 90% at 30% 15%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%),
     linear-gradient(160deg, var(--card-front-hi), var(--card-front-lo) 60%);
   border: 1px solid var(--border);
@@ -1066,6 +1082,26 @@ html, body {
      sitting just above the tile rather than printed flat on it. */
   filter: drop-shadow(0 2px 1px rgba(0,0,0,0.18));
 }
+/* A little sparkle tucked in a corner, clear of the centered emoji, so a
+   face-up tile feels like a tiny framed keepsake rather than a plain card. */
+.card-front::before,
+.card-front::after {
+  position: absolute;
+  font-size: calc(var(--card-font-size) * 0.4);
+  line-height: 1;
+  color: var(--cyan);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.card-front::before { content: "✧"; top: 6%; right: 8%; }
+.card-front::after   { content: "✧"; bottom: 6%; left: 8%; }
+/* Matched tiles get a warmer, more festive pair of sparkles to celebrate. */
+.card.matched .card-front::before,
+.card.matched .card-front::after {
+  content: "✨";
+  color: #fff;
+  opacity: 0.75;
+}
 /* A gentle bounce as a face-up tile settles into place, on top of the
    3D flip - this is what sells "alive" rather than a static swap. */
 .card.flipped .card-front,
@@ -1079,6 +1115,7 @@ html, body {
 }
 .card.matched .card-front {
   background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.14) 12%, transparent 13%) 0 0 / 20px 20px,
     radial-gradient(120% 90% at 30% 15%, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%),
     linear-gradient(160deg, var(--card-match-hi), var(--correct) 55%, var(--card-match-edge));
   border-color: var(--card-match-edge);

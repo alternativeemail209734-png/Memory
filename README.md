@@ -31,7 +31,7 @@ With both set, the game connects to your LIVE **by itself** every time it starts
 2. Upload every file from this folder again, on top of the old ones (same names, same `public` folder). Choose to replace when asked.
 3. Render notices the change and updates your game by itself in a minute or two.
 
-Two things changed in the files. `package.json` has a new TikTok library version, and there is a new `render.yaml`. Both are picked up automatically. (If you're updating from Part 3 to this build, the only change is `style.css` — a purely visual update to the tiles, nothing to configure.)
+Two things changed in the files. `package.json` has a new TikTok library version, and there is a new `render.yaml`. Both are picked up automatically. (If you're updating from Part 3 to this build, `style.css` got the new glossy tile look and `server.js` got a cuter emoji set — nothing to configure either way.)
 
 ## Using the game
 

@@ -677,13 +677,17 @@ const LEVELS = {
   5: { name: 'Chaos', cols: 8, rows: 12, cards: 96 },
 };
 
-// 48 distinct, high-contrast emojis -> enough for 96 cards (48 pairs) at Level 5.
+// 48 distinct, high-contrast, extra-cute emojis -> enough for 96 cards
+// (48 pairs) at Level 5. Leans kawaii: baby animals, sweets and treats,
+// and a few sparkly/lovely extras, so the deck itself feels adorable
+// on top of the glossy tile styling.
 const EMOJI_POOL = [
-  '🐶', '🐱', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯', '🐮', '🐷',
-  '🐸', '🐵', '🐔', '🐧', '🐦', '🦄', '🐝', '🦋', '🐢', '🐙',
-  '🦀', '🐳', '🐬', '🦈', '🐊', '🦉', '🦅', '🦜', '🐴', '🐘',
-  '🍎', '🍊', '🍋', '🍉', '🍇', '🍓', '🍒', '🍑', '🍍', '🥝',
-  '🍕', '🍔', '🍟', '🌮', '🍩', '🍪', '🎂', '🍭',
+  '🐶', '🐱', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯',
+  '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🦄', '🐝', '🦋', '🐢',
+  '🐙', '🦀', '🐳', '🐬',
+  '🍓', '🍒', '🍑', '🍉', '🍇', '🍍', '🥝', '🍕', '🍔', '🍟',
+  '🌮', '🍩', '🍪', '🎂', '🍭', '🧁', '🍦', '🍬',
+  '🌈', '🎈', '🌸', '💖', '⭐', '🎀',
 ];
 
 // Host-adjustable timings shared by every screen (seconds): default, min, max.

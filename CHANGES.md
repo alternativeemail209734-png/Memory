@@ -4,7 +4,9 @@ Part 4 is a pure look-and-feel pass on the tiles. Nothing about how the game pla
 
 ## Part 4 (this build): cute, glossy 3D tiles
 - **Tiles now look like little glossy candy buttons**, not flat rectangles: rounder corners, a soft shine near the top-left, a raised "gumdrop" edge underneath for real depth, and a gentle bounce as a card settles face-up.
-- **Every tile re-colors itself to match whichever of the 8 themes is active**, automatically — the tile colors are computed from each theme's own pink/cyan/panel colors, so there was nothing to hand-tune per theme and nothing to keep in sync later.
+- **A cuter, bigger-feeling deck:** the 48 symbols are now all kawaii-style — baby animals, sweets and treats, plus a few sparkly extras (rainbow, balloon, heart, star, bow) — instead of the plainer original mix.
+- **Both sides got a bit of extra detail:** a very soft polka-dot texture, and a tiny sparkle/heart tucked in opposite corners (well clear of the number or emoji) so a tile-back reads like a little gift tag and a face-up tile like a small keepsake. Matched pairs get a warmer, more festive sparkle.
+- **Every tile re-colors itself to match whichever of the 8 themes is active**, automatically — the tile colors, dots and sparkles are all computed from each theme's own pink/cyan/panel colors, so there was nothing to hand-tune per theme and nothing to keep in sync later.
 - Matched pairs keep their green "correct" color, now with the same glossy treatment and a slightly bigger pop.
 - A wrong pair (red outline while it's held face-up) is unchanged in meaning, just redrawn on the new tile shape.
 - On a mouse/desktop browser, hovering a face-down tile lifts it slightly and clicking presses it down, like a real button (touch devices are unaffected, since there's no hover there). Purely a host-side visual nicety — viewers still only play by typing in chat.
