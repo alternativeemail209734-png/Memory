@@ -1,8 +1,13 @@
-# What changed (part 4 of 4)
+# What changed (part 5 of 5)
 
-Part 4 is a pure look-and-feel pass on the tiles. Nothing about how the game plays, connects or scores has changed.
+Part 5 replaces the single "everything is pink, matches are green" tile coloring with a full rainbow. Nothing about how the game plays, connects or scores has changed.
 
-## Part 4 (this build): cute, glossy 3D tiles
+## Part 5 (this build): a rainbow board
+- **Tiles are no longer all one color.** Every tile - face-down or matched - gets one of six colors, repeating across the board like a bag of candy, instead of every tile-back being pink and every match being green.
+- **Still fully theme-matched:** each of the six colors is the active theme's own pink/green rotated around the color wheel, not a fixed hardcoded palette - so switching themes re-tints the whole rainbow, not just one color.
+- **Clearer status cues, not weaker ones:** since matched tiles now keep their own color instead of all turning green, a matched pair gets a warm gold glow around the whole tile so "you got it" still reads instantly at a glance. A wrong pair still gets a plain red ring, also unaffected by the tile's own color.
+
+## Part 4: cute, glossy 3D tiles
 - **Tiles now look like little glossy candy buttons**, not flat rectangles: rounder corners, a soft shine near the top-left, a raised "gumdrop" edge underneath for real depth, and a gentle bounce as a card settles face-up.
 - **A cuter, bigger-feeling deck:** the 48 symbols are now all kawaii-style — baby animals, sweets and treats, plus a few sparkly extras (rainbow, balloon, heart, star, bow) — instead of the plainer original mix.
 - **Both sides got a bit of extra detail:** a very soft polka-dot texture, and a tiny sparkle/heart tucked in opposite corners (well clear of the number or emoji) so a tile-back reads like a little gift tag and a face-up tile like a small keepsake. Matched pairs get a warmer, more festive sparkle.

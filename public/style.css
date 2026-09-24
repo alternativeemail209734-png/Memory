@@ -1144,18 +1144,52 @@ html, body {
     inset 0 2px 0 rgba(255,255,255,0.35),
     inset 0 -3px 6px rgba(0,0,0,0.15);
 }
-/* A wrong pair stays face-up for a moment: outline it so viewers see the miss. */
-.memory-grid.locked .card.flipped:not(.matched) .card-front {
-  box-shadow:
-    0 4px 0 var(--card-front-edge),
-    0 6px 10px rgba(0,0,0,0.22),
-    inset 0 0 0 3px var(--danger);
+/* A wrong pair stays face-up for a moment: ring the whole tile so viewers
+   see the miss - this lives on the outer .card wrapper (not the colored
+   face) so it always reads as pure red no matter which rainbow color the
+   tile itself has. */
+.memory-grid.locked .card.flipped:not(.matched) {
+  outline: 3px solid var(--danger);
+  outline-offset: -2px;
+  border-radius: var(--tile-radius);
+}
+/* A matched pair gets a warm gold glow around the whole tile - also on
+   the outer wrapper, so "you got it!" reads clearly even though matched
+   tiles now keep their own rainbow color instead of all turning green. */
+.card.matched {
+  border-radius: var(--tile-radius);
+  box-shadow: 0 0 0 3px rgba(255, 214, 92, 0.9), 0 0 16px 3px rgba(255, 195, 60, 0.55);
 }
 @keyframes matchPop {
   0%   { scale: 1; }
   40%  { scale: 1.12; }
   100% { scale: 1; }
 }
+
+/* ---- Rainbow variety ----------------------------------------------------
+   Instead of every tile-back being the same pink and every matched tile
+   being the same green, each tile gets its own hue by rotating the
+   theme's own pink (back) and success (matched) colors around the color
+   wheel per grid position. Six colors, repeating across the board, so a
+   full grid reads like a bag of candy rather than a wall of one color -
+   and because it's a hue-rotate of the theme's own colors (not a fixed
+   hardcoded palette), it still re-tints correctly for every theme and
+   light/dark mode. The wrong-guess ring and matched glow live on the
+   outer .card wrapper (above), which is never hue-rotated, so those
+   status cues stay a true red/gold no matter the tile's own color. */
+.memory-grid > .card:nth-child(6n+1) .card-back { filter: hue-rotate(0deg); }
+.memory-grid > .card:nth-child(6n+2) .card-back { filter: hue-rotate(58deg); }
+.memory-grid > .card:nth-child(6n+3) .card-back { filter: hue-rotate(120deg); }
+.memory-grid > .card:nth-child(6n+4) .card-back { filter: hue-rotate(180deg); }
+.memory-grid > .card:nth-child(6n+5) .card-back { filter: hue-rotate(240deg); }
+.memory-grid > .card:nth-child(6n)   .card-back { filter: hue-rotate(300deg); }
+
+.memory-grid > .card:nth-child(6n+1) .card-front { filter: hue-rotate(0deg)   drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
+.memory-grid > .card:nth-child(6n+2) .card-front { filter: hue-rotate(58deg)  drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
+.memory-grid > .card:nth-child(6n+3) .card-front { filter: hue-rotate(120deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
+.memory-grid > .card:nth-child(6n+4) .card-front { filter: hue-rotate(180deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
+.memory-grid > .card:nth-child(6n+5) .card-front { filter: hue-rotate(240deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
+.memory-grid > .card:nth-child(6n)   .card-front { filter: hue-rotate(300deg) drop-shadow(0 2px 1px rgba(0,0,0,0.18)); }
 
 .pairs-counter {
   font-size: 12px;
