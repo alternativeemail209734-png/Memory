@@ -378,6 +378,15 @@
       name.className = windowRows ? 'round-end-name' : 'lb-name';
       name.textContent = row.name;
       li.appendChild(name);
+      // Live combo streak (This Round leaderboard only - the server only
+      // attaches `streak` to that table, never to All-Time).
+      if (row.streak >= 2) {
+        const streakBadge = document.createElement('span');
+        streakBadge.className = 'streak-badge';
+        streakBadge.textContent = '\u{1F525}' + row.streak;
+        streakBadge.title = row.streak + '-pair streak';
+        li.appendChild(streakBadge);
+      }
       const pts = document.createElement('span');
       pts.className = windowRows ? 'round-end-points' : 'lb-points';
       pts.textContent = windowRows ? row.points + (row.points === 1 ? ' pt' : ' pts') : row.points;
@@ -419,10 +428,25 @@
   let timingPrefs = loadTimingPrefs();
   let toastTimer = null;
 
+  // Combo / streak: a match on streak 2+ shows a small flame + count next
+  // to the points gained, e.g. "+3 \u{1F525}x3", both in the floating pill
+  // and the recent-guesses feed.
+  function streakSuffix(r) {
+    return r && r.streak >= 2 ? ' \u{1F525}\u00D7' + r.streak : '';
+  }
   function describeGuess(r) {
     const pair = r.a != null ? r.a + ' & ' + r.b : null;
     switch (r.kind) {
-      case 'match':   return { tone: 'correct', text: 'found ' + pair, feed: pair + ' \u2014 match! +1', points: '+1' };
+      case 'match': {
+        const gained = r.gained || 1;
+        const suffix = streakSuffix(r);
+        return {
+          tone: 'correct',
+          text: 'found ' + pair,
+          feed: pair + ' \u2014 match! +' + gained + suffix,
+          points: '+' + gained,
+        };
+      }
       case 'miss':    return { tone: 'wrong',   text: pair + ' \u2014 no match', feed: pair + ' \u2014 no match' };
       case 'taken':   return { tone: 'info',    text: pair + ' \u2014 already flipped', feed: pair + ' \u2014 already flipped' };
       case 'invalid': return { tone: 'wrong',   text: pair + ' \u2014 not a card', feed: pair + ' \u2014 not a card' };
@@ -454,6 +478,13 @@
     name.className = 'guess-name';
     name.textContent = r.name;
     toast.appendChild(name);
+    if (r.kind === 'match' && r.streak >= 2) {
+      const streakBadge = document.createElement('span');
+      streakBadge.className = 'streak-badge';
+      streakBadge.textContent = '\u{1F525}' + r.streak;
+      streakBadge.title = r.streak + '-pair streak';
+      toast.appendChild(streakBadge);
+    }
     const detail = document.createElement('span');
     detail.className = 'guess-detail';
     detail.textContent = d.text;
@@ -598,6 +629,29 @@
     detailsToggle.innerHTML = open ? '&#9650; Hide Leaderboard &amp; Activity' : '&#9660; Leaderboard &amp; Activity';
   });
 
+  // ---- Card Symbols picker (Settings): pack list comes from the server, so
+  //      it's built dynamically rather than hard-coded in index.html. -------
+  const emojiPackGridEl = document.getElementById('emojiPackGrid');
+  let currentEmojiPack = null;
+  function syncEmojiPackUI() {
+    emojiPackGridEl.querySelectorAll('.emoji-pack-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.getAttribute('data-pack') === currentEmojiPack);
+    });
+  }
+  socket.on('emojiPacks', (packs) => {
+    emojiPackGridEl.innerHTML = '';
+    (packs || []).forEach((p) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'emoji-pack-btn';
+      btn.setAttribute('data-pack', p.id);
+      btn.textContent = p.label;
+      btn.addEventListener('click', () => socket.emit('host:setEmojiPack', { pack: p.id }));
+      emojiPackGridEl.appendChild(btn);
+    });
+    syncEmojiPackUI();
+  });
+
   // ---- Mode tabs ---------------------------------------------------------------
   const modeBtns = document.querySelectorAll('.mode-btn');
   const panels = {
@@ -662,6 +716,10 @@
       hideRoundEnd();
       clearAutoNextCountdown();
       endPeek();
+    }
+    if (state.emojiPack !== currentEmojiPack) {
+      currentEmojiPack = state.emojiPack;
+      syncEmojiPackUI();
     }
     autoNextToggle.checked = !!state.autoNext;
     botsToggle.checked = !!state.botsOn;
