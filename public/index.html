@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>TikTok LIVE Memory Match</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="app">
+
+    <!-- ===================== TOP: LEGEND + DEBUG ===================== -->
+    <header id="topBar">
+      <div id="legend">
+        <strong>🎮 Type two numbers to flip cards!</strong>
+        <span>e.g. <code>1 5</code></span>
+      </div>
+      <div id="debugPanel">
+        <span>📡 Raw Events: <b id="rawEventCount">0</b></span>
+        <span id="lastEventLine">Last: —</span>
+      </div>
+    </header>
+
+    <!-- ===================== MAIN: GRID + SIDEBAR ===================== -->
+    <main id="mainArea">
+      <div id="gridWrap">
+        <div id="grid"></div>
+      </div>
+
+      <aside id="sidebar">
+        <h2>🏆 Top 10</h2>
+        <ol id="leaderboardList"></ol>
+        <div id="modeBadge">Mode: <span id="modeLabel">OFFLINE</span></div>
+        <div id="tiktokStatus"></div>
+      </aside>
+    </main>
+
+    <!-- ===================== BOTTOM: HOST CONTROLS (sticky) ===================== -->
+    <footer id="hostPanel">
+      <button id="toggleHostPanel" class="collapseBtn">▾ Host Controls</button>
+
+      <div id="hostPanelBody">
+        <div class="hostRow">
+          <label>Difficulty:
+            <select id="levelSelect">
+              <option value="1">1 · Warmup (20)</option>
+              <option value="2" selected>2 · Easy (36)</option>
+              <option value="3">3 · Medium (48)</option>
+              <option value="4">4 · Hard (64)</option>
+              <option value="5">5 · Chaos (96)</option>
+            </select>
+          </label>
+          <button id="newGameBtn">🔄 New Game</button>
+        </div>
+
+        <div class="hostRow">
+          <label>Mode:
+            <select id="modeSelect">
+              <option value="offline">Offline (play myself)</option>
+              <option value="test">Test (simulate chat)</option>
+              <option value="live">Live (real TikTok)</option>
+            </select>
+          </label>
+          <button id="simulateBtn">🎲 Simulate Comment</button>
+        </div>
+
+        <div class="hostRow" id="tiktokConnectRow" style="display:none;">
+          <input id="tiktokUsername" type="text" placeholder="TikTok @username (no @)" />
+          <input id="tiktokApiKey" type="password" placeholder="Signing/Auth key (eulerstream)" />
+          <button id="tiktokConnectBtn">Connect</button>
+          <button id="tiktokDisconnectBtn">Disconnect</button>
+        </div>
+
+        <div class="hostRow">
+          <input id="hostGuessInput" type="text" placeholder='Type as chat: e.g. "1 5" or username: text' />
+          <button id="hostSendBtn">Send</button>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <div id="winOverlay" class="hidden">
+    <div id="winCard">
+      <h1>🎉 All Matched! 🎉</h1>
+      <ol id="winLeaderboard"></ol>
+      <button id="winCloseBtn">Start New Game</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
