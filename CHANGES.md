@@ -1,4 +1,13 @@
-# What changed (part 8)
+# What changed (part 9)
+
+- **No repeated pictures between symbol packs:** every pack has 48 pictures and no picture appears in any other pack. Classic Mix is now flowers, plants, toys, music and sports; Animals, Sweets & Treats, Space & Sky, Holiday & Celebration and Faces & Fun are each fully their own.
+- **New pack: Careers & Occupations** - doctor, farmer, chef, teacher, pilot, astronaut, firefighter, police and more, plus their tools (stethoscope, hammer, fire truck, camera and so on).
+- **Scores reach both leaderboards, in normal view and full screen:**
+  - A new always-on scoreboard sits under the board (top 5 for This Round and All-Time). It is part of the game screen, so it shows in full screen too. The trophy window and round-end window also work in full screen.
+  - The winning pair's points are saved to the all-time file immediately, and the streak flame clears right after a wrong guess.
+  - The leaderboards no longer cut the list short (round 500, all-time 1000 players).
+
+# Part 8 and earlier
 
 - **One uniform tile:** every tile is now the same soft pearl gradient (pink to sky) - no more two colour halves. It has a glossy highlight, a slow shimmer sweep, a twinkling star and a tiny float, all staggered so the board ripples. Colours follow the active theme.
 - **New Card Symbols pack, "Kawaii Stickers" (now the default):** the 12 cute pictures from your preview (heart, star, moon, drop, clover, cat, gem, donut, cloud, frog, mushroom, ghost). Chaos needs 48 different pictures, so the pack reuses the 12 in colour-shifted versions. Face-up pictures gently breathe. The other packs are unchanged.

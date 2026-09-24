@@ -1034,7 +1034,7 @@ html, body {
   padding: 5px;
   /* Never wider than the screen, never taller than what is left under the
      toolbar, so tall boards (Chaos) still fit on a phone without scrolling. */
-  width: min(100%, var(--grid-max), max(200px, calc((var(--vh) * 100 - 310px) * var(--cols) / var(--rows))));
+  width: min(100%, var(--grid-max), max(200px, calc((var(--vh) * 100 - 390px) * var(--cols) / var(--rows))));
   aspect-ratio: var(--cols) / var(--rows);
   background: var(--bg-input);
   border: 2px solid var(--cyan);
@@ -1393,3 +1393,12 @@ html, body {
   .card-back::before, .card-back::after, .card-front img,
   .card:not(.flipped):not(.matched) .card-back { animation: none !important; }
 }
+
+/* ---- Always-on scoreboard (normal view and full screen) ---- */
+.live-scoreboard { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: min(100%, var(--grid-max)); margin-top: 8px; }
+.app-shell:fullscreen .live-scoreboard, .app-shell:-webkit-full-screen .live-scoreboard { width: min(100%, 680px); }
+.live-score-col { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 6px 8px; min-width: 0; }
+.live-score-col h3 { margin: 0 0 4px; font-size: 12px; color: var(--cyan); }
+.live-score-list { list-style: none; margin: 0; padding: 0; }
+.live-score-list li { display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 2px 0; }
+.live-score-list .avatar-circle { width: 20px; height: 20px; }

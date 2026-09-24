@@ -31,7 +31,7 @@ With both set, the game connects to your LIVE **by itself** every time it starts
 2. Upload every file from this folder again, on top of the old ones (same names, same `public` folder). Choose to replace when asked.
 3. Render notices the change and updates your game by itself in a minute or two.
 
-This update (Part 8) changed `server.js`, `public/client.js`, `public/style.css` and added `public/symbols/` (one uniform animated tile, and a Kawaii Stickers symbol pack) plus this `README.md` and `CHANGES.md`. Nothing needs configuring - the new look and features are there as soon as Render redeploys.
+This update (Part 9) changed `server.js`, `public/client.js`, `public/index.html` and `public/style.css` (unique symbol packs, a new Careers & Occupations pack, and an always-on scoreboard) plus this `README.md` and `CHANGES.md`. Nothing needs configuring - the new look and features are there as soon as Render redeploys.
 
 ## Using the game
 

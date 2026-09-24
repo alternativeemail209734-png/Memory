@@ -73,6 +73,13 @@
 
     <div id="memoryGrid" class="memory-grid"></div>
 
+    <!-- Always-on scoreboard: top 5 for this round and all time. Sits with the
+         board, so it shows in normal view AND full screen. -->
+    <div class="live-scoreboard">
+      <div class="live-score-col"><h3>&#127942; This Round</h3><ol id="liveRoundList" class="live-score-list"></ol></div>
+      <div class="live-score-col"><h3>&#11088; All-Time</h3><ol id="liveAllTimeList" class="live-score-list"></ol></div>
+    </div>
+
     <button id="detailsToggle" class="details-toggle" type="button">&#9660; Leaderboard &amp; Activity</button>
 
     <div id="detailsPanel" class="details-panel" hidden>

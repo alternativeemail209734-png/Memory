@@ -207,6 +207,8 @@
   let lastGameId = null;
   let builtForGame = null;
   let serverClockOffset = 0;       // server time minus this device's time
+  const liveRoundEl = document.getElementById('liveRoundList');
+  const liveAllEl = document.getElementById('liveAllTimeList');
   let lastLeaderboard = { round: [], allTime: [] };
   const cardEls = new Map();       // card id -> { el, front }
 
@@ -753,8 +755,10 @@
 
   socket.on('leaderboard', (data) => {
     lastLeaderboard = { round: (data && data.round) || [], allTime: (data && data.allTime) || [] };
-    fillScoreList(leaderboardListEl, lastLeaderboard.round.slice(0, 20), 'inline');
-    fillScoreList(allTimeListEl, lastLeaderboard.allTime.slice(0, 50), 'inline');
+    fillScoreList(leaderboardListEl, lastLeaderboard.round, 'inline');
+    fillScoreList(allTimeListEl, lastLeaderboard.allTime, 'inline');
+    fillScoreList(liveRoundEl, lastLeaderboard.round.slice(0, 5), 'inline');
+    fillScoreList(liveAllEl, lastLeaderboard.allTime.slice(0, 5), 'inline');
     if (!leaderboardOverlay.hidden) renderLeaderboardModal();
   });
 

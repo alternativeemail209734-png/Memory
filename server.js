@@ -679,7 +679,7 @@ const LEVELS = {
 
 // ---------------------------------------------------------------------------
 // CARD SYMBOL PACKS - the host picks one from Settings > Card Symbols. Each
-// pack has 48 distinct emojis so every difficulty, up to Level 5 "Chaos"
+// pack has 48 distinct emojis (and no picture is repeated in any other pack) so every difficulty, up to Level 5 "Chaos"
 // (48 pairs / 96 cards), always has enough unique pictures. Switching packs
 // starts a fresh game with the new set (same difficulty).
 // ---------------------------------------------------------------------------
@@ -702,62 +702,78 @@ const EMOJI_PACKS = {
   classic: {
     label: 'Classic Mix',
     emojis: [
-      '🐶', '🐱', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🦁', '🐯',
-      '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🦄', '🐝', '🦋', '🐢',
-      '🐙', '🦀', '🐳', '🐬',
-      '🍓', '🍒', '🍑', '🍉', '🍇', '🍍', '🥝', '🍕', '🍔', '🍟',
-      '🌮', '🍩', '🍪', '🎂', '🍭', '🧁', '🍦', '🍬',
-      '🌈', '🎈', '🌸', '💖', '⭐', '🎀',
+      '🌸', '🌷', '🌹', '🌻', '🌼', '🌺', '🍀', '🌵',
+      '🌴', '🌳', '🍄', '🌾', '🍁', '🍂', '🌲', '💐',
+      '🎀', '🧸', '🪁', '🎲', '🧩', '🎯', '🏆', '👑',
+      '💎', '🎵', '🎸', '🎨', '🔑', '💡', '🔮', '🎩',
+      '🧲', '🎺', '🥁', '🎹', '🎻', '📚', '⚽', '🏀',
+      '🏈', '⚾', '🎾', '🏐', '🎱', '🏓', '🏸', '🥊',
     ],
   },
   animals: {
     label: 'Animals & Critters',
     emojis: [
-      '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯',
-      '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊', '🐔', '🐧',
-      '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗',
-      '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦂', '🐢',
-      '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦀', '🐡',
+      '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼',
+      '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔',
+      '🐧', '🐦', '🦆', '🦉', '🦇', '🐺', '🐗', '🐴',
+      '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦂',
+      '🐢', '🐍', '🦎', '🐙', '🦑', '🦀', '🐡', '🐠',
+      '🐟', '🐬', '🐳', '🦈', '🐘', '🦒', '🦓', '🦘',
     ],
   },
   food: {
     label: 'Sweets & Treats',
     emojis: [
-      '🍓', '🍒', '🍑', '🍉', '🍇', '🍈', '🍋', '🍊', '🍌', '🍍',
-      '🥝', '🍅', '🥥', '🍆', '🥑', '🍕', '🍔', '🍟', '🌭', '🌮',
-      '🌯', '🥪', '🍩', '🍪', '🎂', '🍰', '🧁', '🍮', '🍭', '🍬',
-      '🍫', '🍿', '🧊', '🍦', '🍧', '🍨', '🥧', '🍯', '🥞', '🧇',
-      '🍗', '🍖', '🥓', '🥐', '🥯', '🥨', '🧀', '🍳',
+      '🍓', '🍒', '🍑', '🍉', '🍇', '🍈', '🍋', '🍊',
+      '🍌', '🍍', '🥝', '🍅', '🥥', '🥑', '🍆', '🥕',
+      '🌽', '🥦', '🥒', '🍕', '🍔', '🍟', '🌭', '🌮',
+      '🌯', '🥪', '🍩', '🍪', '🎂', '🍰', '🧁', '🍮',
+      '🍭', '🍬', '🍫', '🍿', '🍦', '🍧', '🍨', '🥧',
+      '🍯', '🥞', '🧇', '🍗', '🍖', '🥓', '🥐', '🥨',
     ],
   },
   space: {
     label: 'Space & Sky',
     emojis: [
-      '🌟', '⭐', '✨', '💫', '🌙', '🌛', '🌜', '🌚', '🌝', '🌞',
-      '☀️', '🌤️', '⛅', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️',
-      '❄️', '☃️', '⛄', '🌬️', '💨', '🌪️', '🌈', '☔', '💧', '💦',
-      '🌊', '🪐', '🌍', '🌎', '🌏', '🌌', '🚀', '🛸', '🛰️', '👽',
+      '🌟', '⭐', '✨', '💫', '🌙', '🌛', '🌜', '🌚',
+      '🌝', '🌞', '☀️', '🌤️', '⛅', '🌥️', '☁️', '🌦️',
+      '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄', '🌬️',
+      '💨', '🌪️', '🌈', '☔', '💧', '💦', '🌊', '🪐',
+      '🌍', '🌎', '🌏', '🌌', '🚀', '🛸', '🛰️', '👽',
       '👾', '🌠', '🔭', '⚡', '🌡️', '🌀', '🔥', '💥',
     ],
   },
   holiday: {
     label: 'Holiday & Celebration',
     emojis: [
-      '🎄', '🎅', '🤶', '🎁', '🔔', '🦌', '⛄', '❄️', '🕯️', '✨',
-      '🎆', '🎇', '🧨', '🎉', '🎊', '🎈', '🎂', '🍰', '🥳', '😄',
-      '🎃', '👻', '💀', '☠️', '🧙', '🧛', '🧟', '🕷️', '🕸️', '🦇',
-      '🍬', '🍭', '🐰', '🥚', '🌷', '🌸', '🐣', '🎏', '🎐', '🧧',
-      '🐉', '🏮', '💮', '🌟', '💝', '❤️', '💕', '💖',
+      '🎄', '🎅', '🤶', '🎁', '🔔', '🦌', '🕯️', '🎆',
+      '🎇', '🧨', '🎉', '🎊', '🎈', '🥳', '🎃', '👻',
+      '💀', '☠️', '🧙', '🧛', '🧟', '🕷️', '🕸️', '🥚',
+      '🎢', '🐣', '🎏', '🎐', '🧧', '🐉', '🏮', '💮',
+      '💝', '❤️', '💕', '💖', '💘', '💗', '💓', '💞',
+      '🎗️', '🎍', '🎎', '🎑', '🎋', '🎠', '🎡', '🎪',
     ],
   },
   faces: {
     label: 'Faces & Fun',
     emojis: [
-      '😀', '😃', '😄', '😁', '😆', '🥹', '😅', '😂', '🤣', '😊',
-      '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙',
-      '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎',
-      '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁',
-      '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭',
+      '😀', '😃', '😄', '😁', '😆', '🥹', '😅', '😂',
+      '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍',
+      '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝',
+      '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩',
+      '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️',
+      '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤',
+    ],
+  },
+  jobs: {
+    label: 'Careers & Occupations',
+    emojis: [
+      '👨‍⚕️', '👩‍🌾', '👨‍🍳', '👩‍🎓', '👨‍🎤', '👩‍🏫', '👨‍🏭', '👩‍💻',
+      '👨‍💼', '👩‍🔧', '👨‍🔬', '👩‍🎨', '👨‍🚒', '👩‍✈️', '👨‍🚀', '👩‍⚖️',
+      '👮', '👷', '💂', '🕵️', '🩺', '💉', '🔨', '🔧',
+      '🧰', '🚒', '🚑', '🚓', '✈️', '🚜', '🎬', '🎤',
+      '🖥️', '⚖️', '🔬', '🧪', '📡', '📷', '📝', '✂️',
+      '🧵', '🚌', '🚕', '🛠️', '🏗️', '📊', '💼', '🎓',
     ],
   },
 };
@@ -1004,8 +1020,8 @@ function rankList(table, limit, opts) {
 
 function emitLeaderboards() {
   io.emit('leaderboard', {
-    round: rankList(state.scores, 50, { withStreak: true }),
-    allTime: rankList(state.allTimeScores, 100),
+    round: rankList(state.scores, 500, { withStreak: true }),
+    allTime: rankList(state.allTimeScores, 1000),
   });
 }
 
@@ -1029,13 +1045,14 @@ function scheduleAutoNext() {
 
 // Tell everyone the game is over (a real win or a host "reveal all").
 function finishGame() {
+  saveAllTimeScoresNow();   // never lose the winning pair's points
   state.solvedAt = Date.now();
   state.locked = false;
   broadcast();
   emitLeaderboards();
   io.emit('gameOver', {
-    leaderboard: rankList(state.scores, 50, { withStreak: true }),
-    allTimeLeaderboard: rankList(state.allTimeScores, 100),
+    leaderboard: rankList(state.scores, 500, { withStreak: true }),
+    allTimeLeaderboard: rankList(state.allTimeScores, 1000),
     elapsedMs: state.solvedAt - state.startedAt,
     totalPairs: state.cards.length / 2,
     levelName: LEVELS[state.level].name,
@@ -1089,6 +1106,7 @@ function attemptFlip(aId, bId, player) {
 
     state.locked = true;
     broadcast();
+    emitLeaderboards();   // streak badge clears right away
     const gameAtFlip = state.gameId;
     setTimeout(() => {
       try {
@@ -1321,8 +1339,8 @@ function safe(fn, isHostAction) {
 io.on('connection', (socket) => {
   socket.emit('state', publicState());
   socket.emit('leaderboard', {
-    round: rankList(state.scores, 50, { withStreak: true }),
-    allTime: rankList(state.allTimeScores, 100),
+    round: rankList(state.scores, 500, { withStreak: true }),
+    allTime: rankList(state.allTimeScores, 1000),
   });
   // Lets the page skip asking for the Sign API Key when the server has one.
   socket.emit('liveConfig', {
