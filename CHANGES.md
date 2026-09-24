@@ -1,8 +1,16 @@
-# What changed (part 3 of 3)
+# What changed (part 4 of 4)
 
-Part 3 brings the connection handling, hints, timing and saved settings that the Sudoku game already has. The game rules are unchanged.
+Part 4 is a pure look-and-feel pass on the tiles. Nothing about how the game plays, connects or scores has changed.
 
-## Part 3 (this build): a sturdier show
+## Part 4 (this build): cute, glossy 3D tiles
+- **Tiles now look like little glossy candy buttons**, not flat rectangles: rounder corners, a soft shine near the top-left, a raised "gumdrop" edge underneath for real depth, and a gentle bounce as a card settles face-up.
+- **Every tile re-colors itself to match whichever of the 8 themes is active**, automatically — the tile colors are computed from each theme's own pink/cyan/panel colors, so there was nothing to hand-tune per theme and nothing to keep in sync later.
+- Matched pairs keep their green "correct" color, now with the same glossy treatment and a slightly bigger pop.
+- A wrong pair (red outline while it's held face-up) is unchanged in meaning, just redrawn on the new tile shape.
+- On a mouse/desktop browser, hovering a face-down tile lifts it slightly and clicking presses it down, like a real button (touch devices are unaffected, since there's no hover there). Purely a host-side visual nicety — viewers still only play by typing in chat.
+- Respects "reduce motion" system settings the same way the app already did: the settle-bounce and match-pop animations turn off, the flip itself becomes instant.
+
+## Part 3: a sturdier show
 - **Stronger TikTok connection:**
   - The game reconnects by itself if the connection drops, the stream ends, or you were not live yet when you connected.
   - A watchdog notices a "zombie" connection (still says Connected but nothing arrives for 2 minutes) and reconnects.
