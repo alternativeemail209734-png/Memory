@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: memory-live
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      # Your EulerStream Sign API Key. Set it in Render's dashboard
+      # (Environment tab) - it is never stored in this file or in GitHub.
+      - key: EULERSTREAM_SIGN_API_KEY
+        sync: false
+      # Your TikTok username (no @). With BOTH variables set, the game
+      # connects to your LIVE by itself every time it starts.
+      - key: TIKTOK_USERNAME
+        sync: false
+      # Optional: set to "true" only while diagnosing a chat problem.
+      - key: CHAT_DEBUG_LOG
+        value: "false"
+
+    # ---------------------------------------------------------------------
+    # ALL-TIME LEADERBOARD THAT SURVIVES NEW DEPLOYS (optional, paid plan)
+    #
+    # By default the all-time scores are saved to a file inside the game's
+    # own folder. That survives the free plan going to sleep and waking up,
+    # but Render wipes it whenever you deploy new files, because the free
+    # plan's disk is temporary.
+    #
+    # To keep the scores across deploys too: move this service off the free
+    # plan, remove the "#" marks below to attach a Persistent Disk, and set
+    # DATA_DIR to its folder. Leave it as it is to stay on the free plan.
+    #
+    # disk:
+    #   name: memory-live-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
+    #
+    # envVars (add next to the ones above):
+    #   - key: DATA_DIR
+    #     value: /var/data
+    # ---------------------------------------------------------------------

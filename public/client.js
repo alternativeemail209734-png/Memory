@@ -233,17 +233,29 @@
     builtForGame = state.gameId;
   }
 
+  // Peek hint: the server sends every hidden card's picture for a moment.
+  let peekCards = null;      // Map: card id -> emoji while a peek is showing
+  let peekTimer = null;
+  function endPeek() {
+    if (peekTimer) { clearTimeout(peekTimer); peekTimer = null; }
+    peekCards = null;
+    if (currentState) renderGrid(currentState);
+  }
+
   function renderGrid(state) {
     grid.style.setProperty('--cols', state.cols);
     grid.style.setProperty('--rows', state.rows);
     if (builtForGame !== state.gameId || cardEls.size !== state.cards.length) buildGrid(state);
     grid.classList.toggle('locked', !!state.locked);
+    grid.classList.toggle('peeking', !!peekCards);
     state.cards.forEach((card) => {
       const ref = cardEls.get(card.id);
       if (!ref) return;
-      ref.el.classList.toggle('flipped', !!card.flipped);
+      const peeked = !!(peekCards && peekCards.has(card.id) && !card.matched);
+      ref.el.classList.toggle('flipped', !!card.flipped || peeked);
       ref.el.classList.toggle('matched', !!card.matched);
       if (card.emoji) ref.front.textContent = card.emoji;
+      else if (peeked) ref.front.textContent = peekCards.get(card.id);
     });
     scaleCardFont(state.cols);
   }
@@ -289,13 +301,13 @@
       mini = '\u25CF Test mode';
     } else if (state.mode === 'live') {
       if (state.tiktok.connecting) {
-        cls = 'status-connecting'; mini = '\u25CF Connecting...'; full = 'Connecting to TikTok...';
+        cls = 'status-connecting'; mini = '\u25CF Connecting...'; full = state.tiktok.statusText || 'Connecting to TikTok...';
       } else if (state.tiktok.connected) {
         cls = 'status-connected'; mini = '\u25CF Live @' + state.tiktok.uniqueId; full = 'Connected to @' + state.tiktok.uniqueId;
       } else if (state.tiktok.lastError) {
         cls = 'status-error'; mini = '\u25CF Not connected'; full = state.tiktok.lastError;
       } else {
-        mini = '\u25CF Not connected';
+        mini = '\u25CF Not connected'; full = state.tiktok.statusText || 'Not connected.';
       }
     }
     liveStatusMiniEl.className = 'live-status-mini ' + cls;
@@ -376,13 +388,35 @@
 
   function renderDiagnostics(state) {
     rawEventCountEl.textContent = state.rawEventCount;
-    lastReceivedEl.textContent = state.lastEvent && state.lastEvent.text
-      ? state.lastEvent.user + ': ' + state.lastEvent.text
-      : '(none yet)';
+    const ev = state.lastEvent;
+    if (!ev || !ev.text) {
+      lastReceivedEl.textContent = '(none yet)';
+      return;
+    }
+    const KIND_WORDS = { match: 'match', miss: 'no match', taken: 'already flipped', invalid: 'not a card', busy: 'too soon' };
+    lastReceivedEl.textContent = ev.user + ': ' + ev.text +
+      (ev.read ? '  \u2192  read as cards ' + ev.read + ' (' + (KIND_WORDS[ev.kind] || ev.kind) + ')' : '  \u2192  not two card numbers');
   }
 
   // ---- Every guess: feed line + floating pill ---------------------------------
-  const TOAST_MS = 4200;
+  // Timing preferences. The first three live on this device only; the other
+  // three (next game delay, wrong-pair time, peek length) are shared with every
+  // screen, so they are sent to the server.
+  const TIMING_DEFAULTS = {
+    toastSeconds: 4.2, roundWindowSeconds: 5, allTimeWindowSeconds: 5,
+    autoNextDelaySeconds: 10, mismatchSeconds: 1.1, peekSeconds: 3,
+  };
+  const TIMING_STORAGE_KEY = 'memoryLiveTiming';
+  function loadTimingPrefs() {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(TIMING_STORAGE_KEY) || 'null'); } catch (e) { /* ignore */ }
+    const pick = (key) => (saved && typeof saved[key] === 'number' ? saved[key] : TIMING_DEFAULTS[key]);
+    return { toastSeconds: pick('toastSeconds'), roundWindowSeconds: pick('roundWindowSeconds'), allTimeWindowSeconds: pick('allTimeWindowSeconds') };
+  }
+  function saveTimingPrefs(prefs) {
+    try { localStorage.setItem(TIMING_STORAGE_KEY, JSON.stringify(prefs)); } catch (e) { /* ignore */ }
+  }
+  let timingPrefs = loadTimingPrefs();
   let toastTimer = null;
 
   function describeGuess(r) {
@@ -431,10 +465,28 @@
       toast.appendChild(pts);
     }
     toastAreaEl.appendChild(toast);
+    scheduleToastRemoval(toast);
+  }
+
+  function scheduleToastRemoval(toast) {
     toastTimer = setTimeout(() => {
       toast.classList.add('leaving');
       setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
-    }, TOAST_MS);
+    }, Math.round(timingPrefs.toastSeconds * 1000));
+  }
+
+  // A plain host notice (peek / reveal) shown in the same pop-up spot.
+  function pushNoticeToast(text) {
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    while (toastAreaEl.firstChild) toastAreaEl.removeChild(toastAreaEl.firstChild);
+    const toast = document.createElement('div');
+    toast.className = 'guess-toast toast-notice';
+    const name = document.createElement('span');
+    name.className = 'guess-name';
+    name.textContent = text;
+    toast.appendChild(name);
+    toastAreaEl.appendChild(toast);
+    scheduleToastRemoval(toast);
   }
 
   function handleGuess(r) {
@@ -469,8 +521,6 @@
   }
 
   // ---- Round-end window: this round's scorers, then all-time, then closes ----
-  const ROUND_WINDOW_MS = 5000;
-  const ALLTIME_WINDOW_MS = 5000;
   const roundEndOverlay = document.getElementById('roundEndOverlay');
   const roundEndTitle = document.getElementById('roundEndTitle');
   const roundEndList = document.getElementById('roundEndList');
@@ -499,8 +549,8 @@
       roundEndSummary.hidden = true;
       roundEndList.classList.add('capped-20');
       fillScoreList(roundEndList, payload.allTimeLeaderboard || [], 'window');
-      roundEndTimers.push(setTimeout(() => { roundEndOverlay.hidden = true; }, ALLTIME_WINDOW_MS));
-    }, ROUND_WINDOW_MS));
+      roundEndTimers.push(setTimeout(() => { roundEndOverlay.hidden = true; }, Math.round(timingPrefs.allTimeWindowSeconds * 1000)));
+    }, Math.round(timingPrefs.roundWindowSeconds * 1000)));
   }
   document.getElementById('roundEndCloseBtn').addEventListener('click', hideRoundEnd);
   roundEndNewGameBtn.addEventListener('click', () => startNewGame());
@@ -611,6 +661,7 @@
       syncDifficulty(state.level);
       hideRoundEnd();
       clearAutoNextCountdown();
+      endPeek();
     }
     autoNextToggle.checked = !!state.autoNext;
     botsToggle.checked = !!state.botsOn;
@@ -620,6 +671,8 @@
     renderGrid(state);
     renderTopline(state);
     renderDiagnostics(state);
+    syncSharedTimingInputs(state);
+    applyHostDefaultsOnce(state);
   });
 
   socket.on('leaderboard', (data) => {
@@ -639,6 +692,27 @@
   });
   botsToggle.addEventListener('change', () => {
     socket.emit('host:setBots', { enabled: botsToggle.checked });
+  });
+
+  socket.on('peek', (d) => {
+    if (!d || !d.cards) return;
+    peekCards = new Map(d.cards.map((c) => [c.id, c.emoji]));
+    if (currentState) renderGrid(currentState);
+    if (peekTimer) clearTimeout(peekTimer);
+    peekTimer = setTimeout(endPeek, d.ms || 3000);
+    pushNoticeToast('Peek! Memorize the cards');
+  });
+  socket.on('notice', (d) => { if (d && d.text) pushNoticeToast(d.text); });
+
+  // ---- Server has a Sign API Key / username already: skip asking for them -------------
+  socket.on('liveConfig', (cfg) => {
+    cfg = cfg || {};
+    const keyInput = document.getElementById('tiktokApiKey');
+    const userInput = document.getElementById('tiktokUsername');
+    document.getElementById('liveKeyHintDefault').hidden = !cfg.hasDefaultSignApiKey;
+    document.getElementById('liveKeyHintManual').hidden = !!cfg.hasDefaultSignApiKey;
+    keyInput.hidden = !!cfg.hasDefaultSignApiKey;
+    if (cfg.defaultUsername && !userInput.value) userInput.value = cfg.defaultUsername;
   });
 
   // ---- Live connect / test / offline / host console --------------------------------
@@ -662,6 +736,162 @@
     document.getElementById(btnId).addEventListener('click', send);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
   }
+  // ---- Hints & reveals (host-only, no points) -----------------------------------------
+  function hostHint(eventName, payload, closeDrawer) {
+    socket.emit(eventName, payload);
+    if (closeDrawer) closeSettings();
+  }
+  function confirmRevealBoard(closeDrawer) {
+    if (window.confirm('Reveal the whole board? This ends the current game.')) hostHint('host:revealBoard', undefined, closeDrawer);
+  }
+  document.getElementById('peekTopBtn').addEventListener('click', () => hostHint('host:peek'));
+  document.getElementById('revealPairTopBtn').addEventListener('click', () => hostHint('host:revealPair', { count: 1 }));
+  document.getElementById('peekBtn').addEventListener('click', () => hostHint('host:peek', undefined, true));
+  document.getElementById('revealPairBtn').addEventListener('click', () => hostHint('host:revealPair', { count: 1 }, true));
+  document.getElementById('revealThreeBtn').addEventListener('click', () => hostHint('host:revealPair', { count: 3 }, true));
+  document.getElementById('revealBoardBtn').addEventListener('click', () => confirmRevealBoard(true));
+
+  // ---- Timing controls -------------------------------------------------------------------
+  const toastInput = document.getElementById('toastDurationInput');
+  const roundWindowInput = document.getElementById('roundWindowDurationInput');
+  const allTimeWindowInput = document.getElementById('allTimeWindowDurationInput');
+  const autoNextDelayInput = document.getElementById('autoNextDelayInput');
+  const mismatchInput = document.getElementById('mismatchDelayInput');
+  const peekInput = document.getElementById('peekDurationInput');
+
+  function clampNumber(value, fallback, min, max) {
+    let n = parseFloat(value);
+    if (isNaN(n)) n = fallback;
+    return Math.min(max, Math.max(min, n));
+  }
+  function applyLocalTimingInputs() {
+    toastInput.value = timingPrefs.toastSeconds;
+    roundWindowInput.value = timingPrefs.roundWindowSeconds;
+    allTimeWindowInput.value = timingPrefs.allTimeWindowSeconds;
+  }
+  applyLocalTimingInputs();
+
+  function wireLocalTiming(input, key, min, max) {
+    input.addEventListener('change', () => {
+      const v = clampNumber(input.value, TIMING_DEFAULTS[key], min, max);
+      input.value = v;
+      timingPrefs[key] = v;
+      saveTimingPrefs(timingPrefs);
+    });
+  }
+  wireLocalTiming(toastInput, 'toastSeconds', 1, 20);
+  wireLocalTiming(roundWindowInput, 'roundWindowSeconds', 2, 60);
+  wireLocalTiming(allTimeWindowInput, 'allTimeWindowSeconds', 2, 60);
+
+  function wireSharedTiming(input, key, min, max) {
+    input.addEventListener('change', () => {
+      const v = clampNumber(input.value, TIMING_DEFAULTS[key], min, max);
+      input.value = v;
+      socket.emit('host:setTiming', { [key]: v });
+    });
+  }
+  wireSharedTiming(autoNextDelayInput, 'autoNextDelaySeconds', 3, 300);
+  wireSharedTiming(mismatchInput, 'mismatchSeconds', 0.5, 5);
+  wireSharedTiming(peekInput, 'peekSeconds', 1, 10);
+
+  // Keeps the shared inputs in step with the server (unless being typed in).
+  function syncSharedTimingInputs(state) {
+    [[autoNextDelayInput, state.autoNextDelaySeconds], [mismatchInput, state.mismatchSeconds], [peekInput, state.peekSeconds]]
+      .forEach(([input, value]) => {
+        if (typeof value === 'number' && document.activeElement !== input) input.value = value;
+      });
+  }
+
+  document.getElementById('resetTimingBtn').addEventListener('click', () => {
+    timingPrefs = {
+      toastSeconds: TIMING_DEFAULTS.toastSeconds,
+      roundWindowSeconds: TIMING_DEFAULTS.roundWindowSeconds,
+      allTimeWindowSeconds: TIMING_DEFAULTS.allTimeWindowSeconds,
+    };
+    saveTimingPrefs(timingPrefs);
+    applyLocalTimingInputs();
+    socket.emit('host:setTiming', {
+      autoNextDelaySeconds: TIMING_DEFAULTS.autoNextDelaySeconds,
+      mismatchSeconds: TIMING_DEFAULTS.mismatchSeconds,
+      peekSeconds: TIMING_DEFAULTS.peekSeconds,
+    });
+  });
+
+  // ---- Save & Apply Settings / Save & Apply as Default ---------------------------------
+  // Every field already saves itself when it changes; "Save & Apply" is the explicit
+  // "commit everything now" button. "Save as Default" bundles the host setup into one
+  // snapshot on this device. When this page loads and the game server has just
+  // restarted (nobody has configured it yet), the snapshot is applied once. If a show
+  // is already running, it is never touched, so opening the page on a second device
+  // cannot reset the game.
+  const DEFAULTS_STORAGE_KEY = 'memoryLiveHostDefaultsV1';
+  let hostDefaultsApplied = false;
+  const saveConfirmEl = document.getElementById('saveSettingsConfirm');
+  let saveConfirmTimer = null;
+
+  function showSaveConfirm(message) {
+    saveConfirmEl.textContent = message;
+    saveConfirmEl.hidden = false;
+    if (saveConfirmTimer) clearTimeout(saveConfirmTimer);
+    saveConfirmTimer = setTimeout(() => { saveConfirmEl.hidden = true; }, 2500);
+  }
+  function flushFocusedField() {
+    const el = document.activeElement;
+    if (el && el !== document.body && typeof el.blur === 'function') el.blur();
+  }
+  function commitLocalSettings() {
+    flushFocusedField();
+    saveTimingPrefs(timingPrefs);
+    try { localStorage.setItem(THEME_STORAGE_KEY, getEffectiveThemeKey()); } catch (e) { /* ignore */ }
+    try { localStorage.setItem(HOST_CONSOLE_STORAGE_KEY, hostConsoleBar.classList.contains('collapsed') ? '1' : '0'); } catch (e) { /* ignore */ }
+  }
+  function saveHostDefaults() {
+    const s = currentState || {};
+    const defaults = {
+      theme: getEffectiveThemeKey(),
+      mode: s.mode,
+      level: currentLevel,
+      autoNext: !!autoNextToggle.checked,
+      autoNextDelaySeconds: parseFloat(autoNextDelayInput.value),
+      mismatchSeconds: parseFloat(mismatchInput.value),
+      peekSeconds: parseFloat(peekInput.value),
+      bots: !!botsToggle.checked,
+    };
+    const user = document.getElementById('tiktokUsername').value.trim();
+    if (user) defaults.tiktokUsername = user;
+    try { localStorage.setItem(DEFAULTS_STORAGE_KEY, JSON.stringify(defaults)); } catch (e) { /* ignore */ }
+  }
+  function loadHostDefaults() {
+    try { return JSON.parse(localStorage.getItem(DEFAULTS_STORAGE_KEY) || 'null'); } catch (e) { return null; }
+  }
+  function applyHostDefaultsOnce(state) {
+    if (hostDefaultsApplied) return;
+    hostDefaultsApplied = true;
+    const d = loadHostDefaults();
+    if (!d) return;
+    const userInput = document.getElementById('tiktokUsername');
+    if (d.tiktokUsername && !userInput.value) userInput.value = d.tiktokUsername;
+    if (state.configured) return;   // a show is already set up on the server - leave it alone
+    socket.emit('host:applyDefaults', {
+      mode: d.mode, level: d.level, autoNext: d.autoNext, autoNextDelaySeconds: d.autoNextDelaySeconds,
+      mismatchSeconds: d.mismatchSeconds, peekSeconds: d.peekSeconds, bots: d.bots,
+    });
+  }
+
+  document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+    commitLocalSettings();
+    showSaveConfirm('\u2713 Settings saved & applied');
+  });
+  document.getElementById('saveDefaultSettingsBtn').addEventListener('click', () => {
+    commitLocalSettings();
+    saveHostDefaults();
+    showSaveConfirm('\u2713 Saved as default - loads again after a restart');
+  });
+  document.getElementById('clearDefaultSettingsBtn').addEventListener('click', () => {
+    try { localStorage.removeItem(DEFAULTS_STORAGE_KEY); } catch (e) { /* ignore */ }
+    showSaveConfirm('Saved default cleared');
+  });
+
   wireTextSend('testCustomText', 'testCustomBtn', (raw) => ({ user: 'Fake viewer', text: raw }));
   wireTextSend('offlineGuessInput', 'offlineGuessBtn', (raw) => ({ user: 'Host', text: raw }));
   // Host console also accepts "name: 1 5" to guess as a named viewer.

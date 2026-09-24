@@ -30,6 +30,8 @@
       </div>
       <button id="newGameTopBtn" class="icon-btn" aria-label="New Game" title="New Game">&#8635;</button>
       <button id="leaderboardTopBtn" class="icon-btn" aria-label="Leaderboard" title="Leaderboard">&#127942;</button>
+      <button id="peekTopBtn" class="icon-btn" aria-label="Peek: show every card for a moment" title="Peek: show every card for a moment">&#128065;</button>
+      <button id="revealPairTopBtn" class="icon-btn" aria-label="Reveal 1 Pair" title="Reveal 1 Pair (no points)">&#10024;</button>
       <div class="toolbar-dropdown" id="themeDropdown">
         <button type="button" id="themeDropdownBtn" class="icon-btn toolbar-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Theme: Dark" title="Theme: Dark">
           <span id="themeDropdownIcon" class="theme-swatch swatch-dark"></span>
@@ -76,7 +78,7 @@
     <div id="detailsPanel" class="details-panel" hidden>
       <div class="diagnostics-box">
         <h3>Diagnostics</h3>
-        <div>All Raw Events: <span id="rawEventCount">0</span></div>
+        <div>Chat Comments Received: <span id="rawEventCount">0</span></div>
         <div>Last Received: <span id="lastReceived">(none yet)</span></div>
       </div>
 
@@ -175,7 +177,8 @@
 
       <section class="panel live-panel" data-panel="live" hidden>
         <h2>Live Mode (TikTok LIVE)</h2>
-        <p class="hint">Requires a free Sign API Key from eulerstream.com. Live Mode will not connect without it.</p>
+        <p class="hint" id="liveKeyHintManual">Requires a free Sign API Key from eulerstream.com. Live Mode will not connect without it.</p>
+        <p class="hint" id="liveKeyHintDefault" hidden>A Sign API Key is already set on the server - just enter your TikTok username and tap Connect.</p>
         <div class="field-row">
           <input id="tiktokUsername" type="text" placeholder="TikTok username (no @)" autocomplete="off">
           <input id="tiktokApiKey" type="password" placeholder="EulerStream Sign API Key" autocomplete="off">
@@ -218,6 +221,17 @@
 
       <div class="settings-divider"></div>
 
+      <div class="hints-box">
+        <h3 class="hints-title">Hints &amp; Reveals</h3>
+        <p class="hint">Host-only tools. Nobody earns points from them.</p>
+        <div class="hints-buttons">
+          <button id="peekBtn" class="btn btn-secondary">Peek at All Cards</button>
+          <button id="revealPairBtn" class="btn btn-secondary">Reveal 1 Pair</button>
+          <button id="revealThreeBtn" class="btn btn-secondary">Reveal 3 Pairs</button>
+          <button id="revealBoardBtn" class="btn btn-danger">Reveal Whole Board</button>
+        </div>
+      </div>
+
       <label class="auto-next-toggle">
         <input type="checkbox" id="autoNextToggle">
         <span class="toggle-switch" aria-hidden="true"></span>
@@ -226,6 +240,38 @@
           <small>Automatically starts a new game a few seconds after every win.</small>
         </span>
       </label>
+
+      <div class="timing-box">
+        <h3 class="hints-title">Timing</h3>
+        <p class="hint">How long each floating window stays up, how long a wrong pair stays face-up, and the pause before the next game. The first three are saved on this device; the other three are shared with every screen.</p>
+        <div class="timing-grid">
+          <label class="timing-field">
+            Guess pop-up (sec)
+            <input type="number" id="toastDurationInput" min="1" max="20" step="0.5">
+          </label>
+          <label class="timing-field">
+            Round scorers window (sec)
+            <input type="number" id="roundWindowDurationInput" min="2" max="60" step="1">
+          </label>
+          <label class="timing-field">
+            All-time window (sec)
+            <input type="number" id="allTimeWindowDurationInput" min="2" max="60" step="1">
+          </label>
+          <label class="timing-field">
+            Next game delay (sec)
+            <input type="number" id="autoNextDelayInput" min="3" max="300" step="1">
+          </label>
+          <label class="timing-field">
+            Wrong pair shown (sec)
+            <input type="number" id="mismatchDelayInput" min="0.5" max="5" step="0.1">
+          </label>
+          <label class="timing-field">
+            Peek length (sec)
+            <input type="number" id="peekDurationInput" min="1" max="10" step="0.5">
+          </label>
+        </div>
+        <button id="resetTimingBtn" type="button" class="btn btn-secondary timing-reset-btn">Reset to Defaults</button>
+      </div>
 
       <div class="puzzle-controls">
         <select id="difficultySelect" aria-label="Difficulty">
@@ -238,6 +284,11 @@
         <button id="newGameBtn" class="btn btn-secondary">New Game</button>
       </div>
 
+      <button type="button" id="saveSettingsBtn" class="btn btn-primary save-settings-btn">&#128190; Save &amp; Apply Settings</button>
+      <button type="button" id="saveDefaultSettingsBtn" class="btn btn-secondary save-default-settings-btn">&#127775; Save &amp; Apply as Default</button>
+      <p class="hint save-default-hint">Remembers Theme, Mode, Difficulty, Auto Next Game (and its delay), the timings, Auto-Play Bots and your TikTok username on this device, and re-applies them when this page loads after the game has restarted. <button type="button" id="clearDefaultSettingsBtn" class="link-btn">Clear saved default</button></p>
+      <div id="saveSettingsConfirm" class="save-settings-confirm" hidden></div>
+
       <div class="legend-box-full">
         <strong class="how-to-play-title">&#128218; How To Play (Live Game)</strong>
         <ol class="how-to-play-list">
@@ -247,6 +298,16 @@
           <li><span class="htp-icon">&#128161;</span><span>A comma works too: <span class="mono highlight">1, 5</span></span></li>
           <li><span class="htp-icon">&#11088;</span><span>Each pair you find earns <b>1 point</b>. The leaderboards keep count</span></li>
           <li><span class="htp-icon">&#9200;</span><span>No time limit - the clock just shows how long each game takes</span></li>
+        </ol>
+      </div>
+
+      <div class="legend-box-full">
+        <strong class="how-to-play-title">&#127183; New To Memory? Rules Of The Game</strong>
+        <ol class="how-to-play-list">
+          <li><span class="htp-icon">&#127924;</span><span>Every card starts <b>face down</b> and shows only its number</span></li>
+          <li><span class="htp-icon">&#128064;</span><span>Each picture is hidden on <b>exactly two</b> cards. Those two make a pair</span></li>
+          <li><span class="htp-icon">&#129504;</span><span>When two cards flip and don't match, they turn back. <b>Remember where they were</b></span></li>
+          <li><span class="htp-icon">&#127942;</span><span>The game is won when <b>every pair</b> has been found</span></li>
         </ol>
       </div>
     </div>

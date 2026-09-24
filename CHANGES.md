@@ -1,23 +1,32 @@
-# What changed (parts 1 and 2 of 3)
+# What changed (part 3 of 3)
 
-The Memory game follows the look and layout of the Sudoku game. The game rules are unchanged.
+Part 3 brings the connection handling, hints, timing and saved settings that the Sudoku game already has. The game rules are unchanged.
 
-## Part 2 (this build): the live show
-- **Guess pop-ups:** every guess shows a small pill above the board with the viewer's round photo, name and result. One pill at a time, so the board never jumps.
-- **Viewer photos:** real TikTok photos when TikTok provides them. Otherwise a coloured circle with the viewer's initials.
-- **Photos and names** also appear in the leaderboards and the recent guesses.
-- **All-Time Leaderboard:** points keep adding up across games. See it under the board, and in the trophy window (tabs: This Round / All-Time).
-- **Round-end window:** this round's top scorers (5 seconds), then the all-time top scorers (5 seconds), then it closes by itself. The X closes it early.
-- **Auto Next Game:** a switch in Settings. A new game starts 10 seconds after each win, with a countdown on screen.
-- **Auto-Play (Bots):** a switch in the Test tab. Four fake viewers keep guessing until every pair is found. With Auto Next Game on, the game runs hands-free.
-- Scores now belong to the viewer's TikTok ID, so a viewer who changes their display name keeps their points.
+## Part 3 (this build): a sturdier show
+- **Stronger TikTok connection:**
+  - The game reconnects by itself if the connection drops, the stream ends, or you were not live yet when you connected.
+  - A watchdog notices a "zombie" connection (still says Connected but nothing arrives for 2 minutes) and reconnects.
+  - When EulerStream says "slow down" (rate limit), the game waits as long as it asks instead of retrying every few seconds.
+  - The TikTok library is pinned to version 2.5.0, so a fresh deploy can never quietly pull in a different one.
+  - Comments are de-duplicated by their message ID, and comments that arrive in unusual shapes are still read.
+  - The real reason for any connection problem now shows in Settings and in the Render logs.
+- **Set the key once:** `EULERSTREAM_SIGN_API_KEY` and `TIKTOK_USERNAME` can live on Render. With both set, the game connects on start and Settings stops asking for the key. A `.env` file now works on your own computer, and `/healthz` is there for a sleep-preventing monitor.
+- **All-Time scores are saved to a file** (survive sleep and wake, not a new deploy on the free plan; `render.yaml` explains how to keep them across deploys with a Persistent Disk).
+- **Hints and reveals (host only, no points):** Peek shows every card for a few seconds. Reveal 1 Pair, Reveal 3 Pairs and Reveal Whole Board (with a confirm) are in Settings. Peek and Reveal 1 Pair are also in the top bar.
+- **Timing settings:** guess pop-up, round-end windows, next game delay, how long a wrong pair stays face-up and Peek length. Reset to Defaults included.
+- **Save & Apply Settings** and **Save & Apply as Default**: remembers your setup and re-applies it once when the game has restarted. It never touches a show that is already running.
+- **Better guess reading:** `1-5`, `1:5` and full-width digits are read correctly (before, `1-5` was read as card 1 and card -5). The Diagnostics panel now shows how the last comment was read.
+- **New To Memory? Rules** in the How To Play section.
+- Files are sent with no-cache headers, so phones always load the newest version after a deploy.
 
 ## Things to know
-- All-Time scores live in the game's memory. They start again when the game restarts on Render.
+- In Live mode, viewer comments only count while the mode is **Live**. Switching to Test or Offline no longer disconnects TikTok, it just ignores chat until you switch back.
+- The Diagnostics counter now counts chat comments only (it used to count likes and joins too).
 - Test bots only run in Test mode. Switching to Offline or Live turns them off.
+- Already in Part 2 and unchanged: guess pop-ups, viewer photos, all-time leaderboard, round-end window, Auto Next Game, Auto-Play bots.
+
+## Part 2: the live show
+- Guess pop-ups with the viewer's photo, name and result. Viewer photos in leaderboards and recent guesses. All-Time Leaderboard. Round-end window. Auto Next Game. Auto-Play (Bots). Scores belong to the viewer's TikTok ID.
 
 ## Part 1: look, layout and controls
 - 8 colour themes, a compact top bar, a Settings panel, a redesigned board, status line with stopwatch, Leaderboard & Activity panel, hideable Host Console and full screen.
-
-## Planned next
-- Part 3: stronger TikTok connection handling, hint/reveal buttons, timing settings, save-as-default settings.
