@@ -477,12 +477,19 @@
 
   function addFeedItem(r, d) {
     const li = document.createElement('li');
-    li.className = d.tone === 'correct' ? 'feed-correct' : d.tone === 'wrong' ? 'feed-wrong' : 'feed-info';
+    li.className = 'feed-row ' + (d.tone === 'correct' ? 'feed-correct' : d.tone === 'wrong' ? 'feed-wrong' : 'feed-info');
+    // Same real TikTok photo (or the generated initials fallback) used
+    // everywhere else - leaderboards, the round-end window and the guess
+    // toast - so a viewer's exact profile picture is recognizable here too.
+    li.appendChild(makeAvatarImg(r.avatar, r.uniqueId, r.name, 'sm'));
+    const text = document.createElement('span');
+    text.className = 'feed-text';
     const who = document.createElement('span');
     who.className = 'feed-user';
     who.textContent = r.name + ': ';
-    li.appendChild(who);
-    li.appendChild(document.createTextNode(d.feed.trim()));
+    text.appendChild(who);
+    text.appendChild(document.createTextNode(d.feed.trim()));
+    li.appendChild(text);
     feedListEl.insertBefore(li, feedListEl.firstChild);
     while (feedListEl.children.length > 40) feedListEl.removeChild(feedListEl.lastChild);
   }

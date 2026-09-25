@@ -869,6 +869,7 @@ html, body {
   border: 1px solid var(--border);
 }
 .avatar-circle.lg { width: 40px; height: 40px; }
+.avatar-circle.sm { width: 16px; height: 16px; border-width: 1px; }
 
 /* ---- Live guess toast area --------------------------------------------
    Sits in the gap between the "Chat format" hint and the status/timer
@@ -1223,8 +1224,12 @@ html, body {
 .lb-points { flex: 0 0 auto; font-weight: 700; color: var(--success); }
 .lb-empty { color: var(--text-dim); font-style: italic; }
 
-/* Recent answers feed. */
+/* Recent answers feed. Each row shows the exact viewer photo (circular,
+   same source as the leaderboards and the guess toast) next to their name. */
 #feedList li { font-size: 12.5px; line-height: 1.4; }
+#feedList li.feed-row { display: flex; align-items: center; gap: 6px; }
+#feedList .feed-row .avatar-circle { margin-top: 1px; }
+#feedList .feed-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 #feedList .feed-user { font-weight: 700; color: var(--text); }
 
 /* Round-end popup extras. */

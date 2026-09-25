@@ -1,3 +1,7 @@
+# What changed (part 12)
+
+- **Real TikTok photo now shows everywhere a guesser appears, not just some places:** the Recent Guesses feed (under the leaderboards) now shows each viewer's exact circular profile photo next to their name, the same photo already used in the guess pop-up, the This Round / All-Time leaderboards and the round-end windows. Same fallback behaviour as everywhere else: if TikTok hasn't sent a photo yet (or the link has expired), a colour-coded circle with the viewer's initials is shown instead, and it turns into their real photo automatically as soon as one is seen.
+
 # What changed (part 11)
 
 - **Reset scores:** Settings has a new **Reset Scores** box with **Reset This Round** and **Reset All-Time** (each asks you to confirm). The trophy Leaderboards window also has a **Reset scores in this tab** button that resets whichever tab is open. Resetting the round clears everyone's points and streaks for this game only. Resetting all-time clears the saved file too. Neither can be undone.
