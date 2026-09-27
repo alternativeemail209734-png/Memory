@@ -147,10 +147,12 @@
       <div class="leaderboard-modal-tabs">
         <button type="button" class="lb-modal-tab active" data-lb-tab="round">This Round</button>
         <button type="button" class="lb-modal-tab" data-lb-tab="alltime">All-Time</button>
+        <button type="button" class="lb-modal-tab" id="lbTeamsTab" data-lb-tab="teams" hidden>Teams</button>
       </div>
       <button id="lbResetBtn" type="button" class="btn btn-secondary lb-reset-btn">Reset scores in this tab</button>
       <ol id="leaderboardModalRoundList" class="round-end-list"></ol>
       <ol id="leaderboardModalAllTimeList" class="round-end-list capped-20" hidden></ol>
+      <ol id="leaderboardModalTeamsList" class="round-end-list team-standings-list" hidden></ol>
     </div>
   </div>
 
@@ -219,8 +221,36 @@
       </section>
 
       <section class="panel offline-panel" data-panel="offline">
-        <h2>Offline Mode (Solo Play)</h2>
-        <p class="hint">Play the board yourself. Enter two card numbers below.</p>
+        <h2>Offline Mode (Solo &amp; Multiplayer)</h2>
+        <p class="hint">Play the board yourself, or set up Multiplayer Teams below. Enter two card numbers to guess.</p>
+
+        <div class="teams-box">
+          <h3 class="hints-title">Multiplayer Teams</h3>
+          <p class="hint">Add each player's name, pick how many teams and how many players per team, then tap Start. Team colors (Red / Blue / Green / Yellow) are assigned randomly.</p>
+          <div class="field-row">
+            <select id="teamCountSelect" aria-label="Number of teams">
+              <option value="2" selected>2 Teams</option>
+              <option value="3">3 Teams</option>
+              <option value="4">4 Teams</option>
+            </select>
+            <select id="teamSizeSelect" aria-label="Players per team">
+              <option value="1">1 vs 1 (1 player/team)</option>
+              <option value="2" selected>2 vs 2 (2 players/team)</option>
+              <option value="3">3 vs 3 (3 players/team)</option>
+              <option value="4">4 vs 4 (4 players/team)</option>
+              <option value="5">5 vs 5 (5 players/team)</option>
+            </select>
+          </div>
+          <div id="teamNameInputs" class="team-name-inputs"></div>
+          <div class="field-row">
+            <button id="startTeamsBtn" type="button" class="btn btn-primary">Start Team Game</button>
+            <button id="clearTeamsBtn" type="button" class="btn btn-secondary">Clear Teams</button>
+          </div>
+          <div id="teamRoster" class="team-roster" hidden></div>
+        </div>
+
+        <div id="teamGuessHint" class="hint" hidden>Tap a player below, then enter their guess.</div>
+        <div id="teamPlayerChips" class="team-player-chips" hidden></div>
         <div class="field-row">
           <input id="offlineGuessInput" type="text" placeholder="Your guess, e.g. 1 5" autocomplete="off">
           <button id="offlineGuessBtn" class="btn btn-primary">Submit</button>

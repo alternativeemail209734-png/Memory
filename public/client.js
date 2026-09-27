@@ -209,7 +209,7 @@
   let serverClockOffset = 0;       // server time minus this device's time
   const liveRoundEl = document.getElementById('liveRoundList');
   const liveAllEl = document.getElementById('liveAllTimeList');
-  let lastLeaderboard = { round: [], allTime: [] };
+  let lastLeaderboard = { round: [], allTime: [], teams: [] };
   const cardEls = new Map();       // card id -> { el, front }
 
   // ---- Board ------------------------------------------------------------
@@ -244,7 +244,10 @@
     if (currentState) renderGrid(currentState);
   }
 
-  // Draws a card's picture: normal emoji text, or a Kawaii Stickers picture ("img:name:hue").
+  // Draws a card's picture: normal emoji text, a Kawaii Stickers picture
+  // ("img:name:hue"), or a colour-shifted emoji ("emo:emoji:hue" - used by
+  // the Musical Instruments / Dinosaur Age / Fantasy & Magic / Board Games
+  // packs, which tint a small set of pictures four ways to reach 48).
   function setFace(front, sym) {
     if (front.dataset.sym === sym) return;
     front.dataset.sym = sym;
@@ -257,6 +260,14 @@
       if (+p[2]) img.style.filter = 'hue-rotate(' + p[2] + 'deg)';
       front.textContent = '';
       front.appendChild(img);
+    } else if (typeof sym === 'string' && sym.indexOf('emo:') === 0) {
+      const p = sym.split(':');
+      const span = document.createElement('span');
+      span.className = 'card-emo';
+      span.textContent = p[1];
+      if (+p[2]) span.style.filter = 'hue-rotate(' + p[2] + 'deg)';
+      front.textContent = '';
+      front.appendChild(span);
     } else {
       front.textContent = sym;
     }
@@ -617,10 +628,48 @@
   const leaderboardOverlay = document.getElementById('leaderboardOverlay');
   const modalRoundList = document.getElementById('leaderboardModalRoundList');
   const modalAllTimeList = document.getElementById('leaderboardModalAllTimeList');
+  const modalTeamsList = document.getElementById('leaderboardModalTeamsList');
+  const lbTeamsTab = document.getElementById('lbTeamsTab');
   const lbTabs = document.querySelectorAll('.lb-modal-tab');
+
+  // Team standings row: color bar, rank, team name, each member's own
+  // points, and the team's total (sum of its members).
+  function fillTeamStandingsList(listEl, teams) {
+    listEl.innerHTML = '';
+    if (!teams || !teams.length) {
+      const li = document.createElement('li');
+      li.className = 'lb-empty';
+      li.textContent = 'No teams yet - set them up under Settings \u2192 Offline Mode.';
+      listEl.appendChild(li);
+      return;
+    }
+    teams.forEach((team, idx) => {
+      const li = document.createElement('li');
+      li.className = 'team-standing-row team-color-' + team.color;
+      const rank = document.createElement('span');
+      rank.className = 'round-end-rank';
+      rank.textContent = rankBadge(idx);
+      li.appendChild(rank);
+      const name = document.createElement('span');
+      name.className = 'round-end-name team-standing-name';
+      name.textContent = team.name;
+      li.appendChild(name);
+      const members = document.createElement('span');
+      members.className = 'team-standing-members';
+      members.textContent = (team.members || []).map((m) => m.name + ' (' + m.points + ')').join(', ');
+      li.appendChild(members);
+      const pts = document.createElement('span');
+      pts.className = 'round-end-points';
+      pts.textContent = team.points + (team.points === 1 ? ' pt' : ' pts');
+      li.appendChild(pts);
+      listEl.appendChild(li);
+    });
+  }
+
   function renderLeaderboardModal() {
     fillScoreList(modalRoundList, lastLeaderboard.round, 'window');
     fillScoreList(modalAllTimeList, lastLeaderboard.allTime, 'window');
+    fillTeamStandingsList(modalTeamsList, lastLeaderboard.teams);
   }
   function closeLeaderboardModal() { leaderboardOverlay.hidden = true; }
   function openLeaderboardModal() {
@@ -633,6 +682,7 @@
       const tab = btn.getAttribute('data-lb-tab');
       modalRoundList.hidden = tab !== 'round';
       modalAllTimeList.hidden = tab !== 'alltime';
+      modalTeamsList.hidden = tab !== 'teams';
     });
   });
   document.getElementById('leaderboardTopBtn').addEventListener('click', openLeaderboardModal);
@@ -678,6 +728,103 @@
     });
     syncEmojiPackUI();
   });
+
+  // ---- Multiplayer Teams (Offline Mode) -----------------------------------------
+  // Host adds player names, picks team count (2-4) and team size (1-5), then taps
+  // Start. Teams and colors come from the server; this just builds the name
+  // fields, shows the roster/chips, and tags the next offline guess with whichever
+  // player chip was last tapped.
+  const teamCountSelect = document.getElementById('teamCountSelect');
+  const teamSizeSelect = document.getElementById('teamSizeSelect');
+  const teamNameInputsEl = document.getElementById('teamNameInputs');
+  const teamRosterEl = document.getElementById('teamRoster');
+  const teamPlayerChipsEl = document.getElementById('teamPlayerChips');
+  const teamGuessHintEl = document.getElementById('teamGuessHint');
+  let activeTeamPlayer = null; // { id, name } - whoever's chip was tapped last
+
+  function rebuildTeamNameInputs() {
+    const count = parseInt(teamCountSelect.value, 10) || 2;
+    const size = parseInt(teamSizeSelect.value, 10) || 1;
+    teamNameInputsEl.innerHTML = '';
+    for (let t = 0; t < count; t++) {
+      const group = document.createElement('div');
+      group.className = 'team-name-group';
+      const label = document.createElement('div');
+      label.className = 'team-name-group-label';
+      label.textContent = 'Team ' + (t + 1);
+      group.appendChild(label);
+      for (let k = 0; k < size; k++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'team-name-input';
+        input.placeholder = 'Player ' + (t * size + k + 1) + ' name';
+        input.autocomplete = 'off';
+        group.appendChild(input);
+      }
+      teamNameInputsEl.appendChild(group);
+    }
+  }
+  teamCountSelect.addEventListener('change', rebuildTeamNameInputs);
+  teamSizeSelect.addEventListener('change', rebuildTeamNameInputs);
+  rebuildTeamNameInputs();
+
+  document.getElementById('startTeamsBtn').addEventListener('click', () => {
+    const names = Array.from(teamNameInputsEl.querySelectorAll('.team-name-input')).map((i) => i.value.trim());
+    socket.emit('host:setupTeams', {
+      teamCount: parseInt(teamCountSelect.value, 10) || 2,
+      teamSize: parseInt(teamSizeSelect.value, 10) || 1,
+      names,
+    });
+  });
+  document.getElementById('clearTeamsBtn').addEventListener('click', () => {
+    if (!window.confirm('Clear teams and go back to solo Offline play?')) return;
+    activeTeamPlayer = null;
+    socket.emit('host:clearTeams');
+  });
+
+  // Draws the color-coded roster cards and the tap-to-pick player chips
+  // under the guess box. Called every time the server sends a new state.
+  function renderTeamRoster(teamsState) {
+    const enabled = !!(teamsState && teamsState.enabled && teamsState.list && teamsState.list.length);
+    teamRosterEl.hidden = !enabled;
+    teamPlayerChipsEl.hidden = !enabled;
+    teamGuessHintEl.hidden = !enabled;
+    if (!enabled) { activeTeamPlayer = null; return; }
+
+    teamRosterEl.innerHTML = '';
+    teamsState.list.forEach((team) => {
+      const box = document.createElement('div');
+      box.className = 'team-roster-card team-color-' + team.color;
+      const title = document.createElement('div');
+      title.className = 'team-roster-title';
+      title.textContent = team.name;
+      box.appendChild(title);
+      const names = document.createElement('div');
+      names.className = 'team-roster-names';
+      names.textContent = team.players.map((p) => p.name).join(', ');
+      box.appendChild(names);
+      teamRosterEl.appendChild(box);
+    });
+
+    teamPlayerChipsEl.innerHTML = '';
+    let stillValid = false;
+    teamsState.list.forEach((team) => {
+      team.players.forEach((pl) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'team-player-chip team-color-' + team.color;
+        chip.textContent = pl.name;
+        if (activeTeamPlayer && activeTeamPlayer.id === pl.id) { chip.classList.add('active'); stillValid = true; }
+        chip.addEventListener('click', () => {
+          activeTeamPlayer = { id: pl.id, name: pl.name };
+          teamPlayerChipsEl.querySelectorAll('.team-player-chip').forEach((c) => c.classList.remove('active'));
+          chip.classList.add('active');
+        });
+        teamPlayerChipsEl.appendChild(chip);
+      });
+    });
+    if (!stillValid) activeTeamPlayer = null;
+  }
 
   // ---- Mode tabs ---------------------------------------------------------------
   const modeBtns = document.querySelectorAll('.mode-btn');
@@ -758,14 +905,16 @@
     renderDiagnostics(state);
     syncSharedTimingInputs(state);
     applyHostDefaultsOnce(state);
+    renderTeamRoster(state.teams);
   });
 
   socket.on('leaderboard', (data) => {
-    lastLeaderboard = { round: (data && data.round) || [], allTime: (data && data.allTime) || [] };
+    lastLeaderboard = { round: (data && data.round) || [], allTime: (data && data.allTime) || [], teams: (data && data.teams) || [] };
     fillScoreList(leaderboardListEl, lastLeaderboard.round, 'inline');
     fillScoreList(allTimeListEl, lastLeaderboard.allTime, 'inline');
     fillScoreList(liveRoundEl, lastLeaderboard.round.slice(0, 5), 'inline');
     fillScoreList(liveAllEl, lastLeaderboard.allTime.slice(0, 5), 'inline');
+    lbTeamsTab.hidden = !lastLeaderboard.teams.length;
     if (!leaderboardOverlay.hidden) renderLeaderboardModal();
   });
 
@@ -991,7 +1140,11 @@
   });
 
   wireTextSend('testCustomText', 'testCustomBtn', (raw) => ({ user: 'Fake viewer', text: raw }));
-  wireTextSend('offlineGuessInput', 'offlineGuessBtn', (raw) => ({ user: 'Host', text: raw }));
+  wireTextSend('offlineGuessInput', 'offlineGuessBtn', (raw) => (
+    activeTeamPlayer
+      ? { user: activeTeamPlayer.name, playerId: activeTeamPlayer.id, text: raw }
+      : { user: 'Host', text: raw }
+  ));
   // Host console also accepts "name: 1 5" to guess as a named viewer.
   wireTextSend('hostConsoleInput', 'hostConsoleBtn', (raw) => {
     const colon = raw.indexOf(':');

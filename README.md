@@ -31,8 +31,20 @@ With both set, the game connects to your LIVE **by itself** every time it starts
 2. Upload every file from this folder again, on top of the old ones (same names, same `public` folder). Choose to replace when asked.
 3. Render notices the change and updates your game by itself in a minute or two.
 
-This update (Part 12) changed `public/client.js` and `public/style.css` (each viewer's exact circular TikTok photo now also shows in the Recent Guesses feed, matching the leaderboards and the guess pop-up).
-- Tap **Settings** (the gear) to pick Offline, Test or Live mode, to connect TikTok, and to pick a **Card Symbols** pack (Animals, Sweets & Treats, Space, Holiday, Faces, or the original Classic Mix) - picking a new pack starts a fresh game with it right away.
+This update (Part 13) changed `server.js`, `public/client.js`, `public/index.html` and `public/style.css`: added Multiplayer Teams to Offline Mode, and 8 new Card Symbol packs. See `CHANGES.md` for the full list.
+- Tap **Settings** (the gear) to pick Offline, Test or Live mode, to connect TikTok, and to pick a **Card Symbols** pack. There are 18 packs now: the originals (Kawaii Stickers, Classic Mix, Animals & Critters, Sweets & Treats, Space & Sky, Holiday & Celebration, Faces & Fun, Careers & Occupations, Vehicles & Travel, Buildings & Places) plus 8 new ones - **World Flags**, **Superheroes**, **Winter Wonderland**, **Famous Landmarks**, **Musical Instruments**, **Dinosaur Age**, **Fantasy & Magic** and **Board Games & Toys**. Picking a new pack starts a fresh game with it right away.
+
+### Multiplayer Teams (Offline Mode)
+
+In Settings > **Offline Mode**, use the **Multiplayer Teams** box to run a team match on one phone:
+
+1. Pick how many teams (2, 3 or 4) and how many players on each team (1-5 - so 1v1 up to 5v5, or a 3- or 4-way game).
+2. Type each player's name in the boxes that appear.
+3. Tap **Start Team Game**. Each team is given a random color - Red, Blue, Green or Yellow - and a roster card for each team appears, listing its players.
+4. To make a guess, tap that player's name chip under the guess box, then type their two card numbers and tap Submit. Their points are added to their team's total automatically.
+5. Tap the trophy button and open the new **Teams** tab to see each team's color, total points, and what every member has scored.
+6. Tap **Clear Teams** to end the team match and go back to ordinary solo Offline play.
+
 - **Combo streaks:** a viewer who matches pairs back-to-back earns bonus points - the 2nd pair in a row is worth 2 points, the 3rd worth 3, and 4+ in a row is worth 4. A wrong guess resets that viewer's streak. While someone's streak is 2 or more, a small flame badge (e.g. "🔥×3") shows next to their name in the guess pop-up and the This Round leaderboard.
 - **Host Console** at the bottom lets you type guesses yourself. Tap **Hide** to hide it, and **Console** to bring it back.
 - Tap **Leaderboard & Activity** under the board to see the scores, the last chat comment the game received and how it read it, and every recent guess.

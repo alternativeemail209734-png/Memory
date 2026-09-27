@@ -1423,3 +1423,87 @@ html, body {
 .card:not(.flipped):not(.matched) .card-back,
 .card-front img { animation: none !important; }
 .lb-reset-btn { width: 100%; margin-bottom: 8px; }
+
+
+/* ---------------------------------------------------------------------------
+   Part 13: Multiplayer Teams (Offline Mode) + 8 new Card Symbol packs.
+   Team colors are fixed to four options (Red / Blue / Green / Yellow),
+   assigned randomly by the server - these classes just paint whichever
+   color a team/player/row was given.
+--------------------------------------------------------------------------- */
+.card-emo { display: inline-block; line-height: 1; }
+
+.teams-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.teams-box .hint { margin: 0 0 2px 0; }
+
+.team-name-inputs { display: flex; flex-direction: column; gap: 8px; }
+.team-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+.team-name-group-label { font-size: 11.5px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.03em; }
+.team-name-input {
+  background: var(--bg-panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.team-roster { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.team-roster-card { border-radius: 8px; padding: 8px 10px; border-left: 5px solid; }
+.team-roster-title { font-weight: 700; font-size: 13px; }
+.team-roster-names { font-size: 12px; opacity: 0.85; }
+
+.team-player-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.team-player-chip {
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid transparent;
+  color: #fff;
+  opacity: 0.85;
+}
+.team-player-chip.active { opacity: 1; box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,0.25); }
+
+/* Team color palette, applied to roster cards, chips and standings rows. */
+.team-color-red    { background: #e5484d; border-color: #b3262b; }
+.team-color-blue   { background: #3b82f6; border-color: #1d4ed8; }
+.team-color-green  { background: #22c55e; border-color: #15803d; }
+.team-color-yellow { background: #eab308; border-color: #a16207; color: #3a2c00; }
+.team-roster-card.team-color-red    { background: rgba(229,72,77,0.12);  border-left-color: #e5484d; }
+.team-roster-card.team-color-blue   { background: rgba(59,130,246,0.12); border-left-color: #3b82f6; }
+.team-roster-card.team-color-green  { background: rgba(34,197,94,0.12);  border-left-color: #22c55e; }
+.team-roster-card.team-color-yellow { background: rgba(234,179,8,0.14);  border-left-color: #eab308; }
+
+.team-standing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 5px solid;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.team-standing-row.team-color-red    { border-left-color: #e5484d; background: rgba(229,72,77,0.08); }
+.team-standing-row.team-color-blue   { border-left-color: #3b82f6; background: rgba(59,130,246,0.08); }
+.team-standing-row.team-color-green  { border-left-color: #22c55e; background: rgba(34,197,94,0.08); }
+.team-standing-row.team-color-yellow { border-left-color: #eab308; background: rgba(234,179,8,0.10); }
+.team-standing-name { font-weight: 700; }
+.team-standing-members { font-size: 11.5px; opacity: 0.75; flex: 1; }

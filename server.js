@@ -798,8 +798,108 @@ const EMOJI_PACKS = {
       '🌋', '🗻', '🏕️', '🏛️', '🏟️', '🏘️', '🏚️', '🗿',
     ],
   },
+  flags: {
+    label: 'World Flags',
+    emojis: [
+      '🇺🇸', '🇬🇧', '🇫🇷', '🇩🇪', '🇮🇹', '🇪🇸', '🇵🇹', '🇳🇱',
+      '🇧🇪', '🇨🇭', '🇦🇹', '🇸🇪', '🇳🇴', '🇩🇰', '🇫🇮', '🇮🇸',
+      '🇮🇪', '🇵🇱', '🇬🇷', '🇹🇷', '🇷🇺', '🇺🇦', '🇯🇵', '🇰🇷',
+      '🇨🇳', '🇮🇳', '🇮🇩', '🇹🇭', '🇻🇳', '🇵🇭', '🇲🇾', '🇸🇬',
+      '🇦🇺', '🇳🇿', '🇨🇦', '🇲🇽', '🇧🇷', '🇦🇷', '🇨🇱', '🇨🇴',
+      '🇵🇪', '🇪🇬', '🇿🇦', '🇳🇬', '🇰🇪', '🇲🇦', '🇸🇦', '🇦🇪',
+    ],
+  },
+  superheroes: {
+    label: 'Superheroes',
+    // Generic hero/action imagery (no copyrighted characters) - masked
+    // figures, powers and gadget icons.
+    emojis: [
+      '🦸', '🦸‍♂️', '🦸‍♀️', '🦹', '🦹‍♂️', '🦹‍♀️', '🕷️', '🦇',
+      '💥', '⚡', '🔥', '🌪️', '🌊', '☄️', '🛡️', '🗡️',
+      '🏹', '💪', '👊', '✊', '🤛', '🤜', '🦾', '🦿',
+      '🎭', '🕶️', '🧤', '👁️', '🔰', '⭐', '🌟', '✨',
+      '💫', '🔮', '⚙️', '🧬', '🚀', '🛸', '🔋', '🧲',
+      '🌐', '🎇', '🎆', '🏆', '👑', '💎', '🔱', '⚔️',
+    ],
+  },
+  winter: {
+    label: 'Winter Wonderland',
+    emojis: [
+      '❄️', '⛄', '☃️', '🎿', '🏂', '🛷', '⛸️', '🥌',
+      '🧊', '🌨️', '🏔️', '⛰️', '🌬️', '🧣', '🧤', '🧦',
+      '🥶', '🧥', '👢', '🐧', '🐻‍❄️', '🦭', '🦉', '🌡️',
+      '☕', '🥛', '🔥', '🏠', '⛺', '🕯️', '🦌', '🐺',
+      '🌫️', '💨', '🌀', '🧶', '🧵', '🪵', '🥾', '🏒',
+      '🥅', '⛷️', '🚡', '🚠', '⚡', '🌥️', '🌦️', '🌧️',
+    ],
+  },
+  landmarks: {
+    label: 'Famous Landmarks',
+    emojis: [
+      '🗼', '🗽', '🕌', '⛪', '🛕', '🕍', '⛩️', '🏯',
+      '🏰', '🗿', '🎡', '🏛️', '🏟️', '⛲', '🌉', '🏙️',
+      '🌆', '🌇', '🏖️', '🏝️', '🏜️', '🏞️', '🌋', '🗻',
+      '🏔️', '🧱', '🚉', '🕋', '🏦', '🏫', '🏥', '🏨',
+      '🏬', '🏭', '💒', '🎪', '🏗️', '🌁', '🌃', '🌄',
+      '🌅', '🚂', '⛴️', '🛳️', '🗾', '🧭', '📍', '🎠',
+    ],
+  },
+  // The four packs below reuse a smaller set of themed pictures in four
+  // colour-shifted tints ("emo:<emoji>:<hue>"), the same trick "Kawaii
+  // Stickers" uses for its photos - because Unicode doesn't have 48 truly
+  // distinct pictures for these narrower themes. Each of the 12 base shapes
+  // is easy to tell apart, and the tint gives a second way (colour) to
+  // spot a match, exactly like the user asked for.
+  instruments: {
+    label: 'Musical Instruments',
+    emojis: [
+      'emo:🎸:0', 'emo:🎹:0', 'emo:🎻:0', 'emo:🎺:0', 'emo:🪕:0', 'emo:🥁:0', 'emo:🪘:0', 'emo:🎷:0', 'emo:🪗:0', 'emo:🎤:0', 'emo:🎼:0', 'emo:📯:0',
+      'emo:🎸:120', 'emo:🎹:120', 'emo:🎻:120', 'emo:🎺:120', 'emo:🪕:120', 'emo:🥁:120', 'emo:🪘:120', 'emo:🎷:120', 'emo:🪗:120', 'emo:🎤:120', 'emo:🎼:120', 'emo:📯:120',
+      'emo:🎸:210', 'emo:🎹:210', 'emo:🎻:210', 'emo:🎺:210', 'emo:🪕:210', 'emo:🥁:210', 'emo:🪘:210', 'emo:🎷:210', 'emo:🪗:210', 'emo:🎤:210', 'emo:🎼:210', 'emo:📯:210',
+      'emo:🎸:300', 'emo:🎹:300', 'emo:🎻:300', 'emo:🎺:300', 'emo:🪕:300', 'emo:🥁:300', 'emo:🪘:300', 'emo:🎷:300', 'emo:🪗:300', 'emo:🎤:300', 'emo:🎼:300', 'emo:📯:300',
+    ],
+  },
+  dinosaurs: {
+    label: 'Dinosaur Age',
+    emojis: [
+      'emo:🦕:0', 'emo:🦖:0', 'emo:🦴:0', 'emo:🥚:0', 'emo:🌋:0', 'emo:🍃:0', 'emo:🌿:0', 'emo:🦂:0', 'emo:🐊:0', 'emo:🦎:0', 'emo:🐢:0', 'emo:🌴:0',
+      'emo:🦕:120', 'emo:🦖:120', 'emo:🦴:120', 'emo:🥚:120', 'emo:🌋:120', 'emo:🍃:120', 'emo:🌿:120', 'emo:🦂:120', 'emo:🐊:120', 'emo:🦎:120', 'emo:🐢:120', 'emo:🌴:120',
+      'emo:🦕:210', 'emo:🦖:210', 'emo:🦴:210', 'emo:🥚:210', 'emo:🌋:210', 'emo:🍃:210', 'emo:🌿:210', 'emo:🦂:210', 'emo:🐊:210', 'emo:🦎:210', 'emo:🐢:210', 'emo:🌴:210',
+      'emo:🦕:300', 'emo:🦖:300', 'emo:🦴:300', 'emo:🥚:300', 'emo:🌋:300', 'emo:🍃:300', 'emo:🌿:300', 'emo:🦂:300', 'emo:🐊:300', 'emo:🦎:300', 'emo:🐢:300', 'emo:🌴:300',
+    ],
+  },
+  fantasy: {
+    label: 'Fantasy & Magic',
+    emojis: [
+      'emo:🧙:0', 'emo:🧙‍♂️:0', 'emo:🧙‍♀️:0', 'emo:🐉:0', 'emo:🦄:0', 'emo:🧝:0', 'emo:🧚:0', 'emo:🔮:0', 'emo:🪄:0', 'emo:⚗️:0', 'emo:📜:0', 'emo:🗝️:0',
+      'emo:🧙:120', 'emo:🧙‍♂️:120', 'emo:🧙‍♀️:120', 'emo:🐉:120', 'emo:🦄:120', 'emo:🧝:120', 'emo:🧚:120', 'emo:🔮:120', 'emo:🪄:120', 'emo:⚗️:120', 'emo:📜:120', 'emo:🗝️:120',
+      'emo:🧙:210', 'emo:🧙‍♂️:210', 'emo:🧙‍♀️:210', 'emo:🐉:210', 'emo:🦄:210', 'emo:🧝:210', 'emo:🧚:210', 'emo:🔮:210', 'emo:🪄:210', 'emo:⚗️:210', 'emo:📜:210', 'emo:🗝️:210',
+      'emo:🧙:300', 'emo:🧙‍♂️:300', 'emo:🧙‍♀️:300', 'emo:🐉:300', 'emo:🦄:300', 'emo:🧝:300', 'emo:🧚:300', 'emo:🔮:300', 'emo:🪄:300', 'emo:⚗️:300', 'emo:📜:300', 'emo:🗝️:300',
+    ],
+  },
+  boardgames: {
+    label: 'Board Games & Toys',
+    emojis: [
+      'emo:🎲:0', 'emo:🧩:0', 'emo:🎯:0', 'emo:🃏:0', 'emo:♟️:0', 'emo:🀄:0', 'emo:🎳:0', 'emo:🪀:0', 'emo:🪁:0', 'emo:🎮:0', 'emo:🕹️:0', 'emo:🧸:0',
+      'emo:🎲:120', 'emo:🧩:120', 'emo:🎯:120', 'emo:🃏:120', 'emo:♟️:120', 'emo:🀄:120', 'emo:🎳:120', 'emo:🪀:120', 'emo:🪁:120', 'emo:🎮:120', 'emo:🕹️:120', 'emo:🧸:120',
+      'emo:🎲:210', 'emo:🧩:210', 'emo:🎯:210', 'emo:🃏:210', 'emo:♟️:210', 'emo:🀄:210', 'emo:🎳:210', 'emo:🪀:210', 'emo:🪁:210', 'emo:🎮:210', 'emo:🕹️:210', 'emo:🧸:210',
+      'emo:🎲:300', 'emo:🧩:300', 'emo:🎯:300', 'emo:🃏:300', 'emo:♟️:300', 'emo:🀄:300', 'emo:🎳:300', 'emo:🪀:300', 'emo:🪁:300', 'emo:🎮:300', 'emo:🕹️:300', 'emo:🧸:300',
+    ],
+  },
 };
 const DEFAULT_EMOJI_PACK = 'kawaii';
+
+// ---------------------------------------------------------------------------
+// MULTIPLAYER TEAMS (Offline Mode) - players enter a name, are split into
+// 2-4 teams of 1-5 players each, and each team gets a random colour. Team
+// points are just the sum of its members' round points.
+// ---------------------------------------------------------------------------
+const TEAM_COLORS = ['red', 'blue', 'green', 'yellow'];
+const TEAM_COLOR_LABELS = { red: 'Red Team', blue: 'Blue Team', green: 'Green Team', yellow: 'Yellow Team' };
+
+function slugify(s) {
+  return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '') || 'p';
+}
 
 // Host-adjustable timings shared by every screen (seconds): default, min, max.
 const TIMING = {
@@ -860,6 +960,7 @@ const state = {
   rawEventCount: 0,
   lastEvent: { user: '', text: '', read: null, kind: null },
   tiktok: { connected: false, connecting: false, uniqueId: null, lastError: null, statusText: 'Not connected.' },
+  teams: { enabled: false, vsLabel: '', list: [] },  // Offline Mode multiplayer teams (see setupTeams below)
 };
 
 const avatarCache = {};   // uniqueId -> last known photo URL
@@ -964,11 +1065,88 @@ function newGame(level) {
   }));
   state.locked = false;
   state.scores = {};
+  // Multiplayer Teams: a new game clears round points, but the roster (team
+  // colours, names and 0-point rows) must not disappear - re-seed every
+  // player so the team panel still shows everyone at 0 for the next round.
+  if (state.teams.enabled) {
+    state.teams.list.forEach((team) => {
+      team.players.forEach((pl) => ensurePlayer(state.scores, { uniqueId: pl.id, name: pl.name }));
+    });
+  }
   state.gameId += 1;
   state.startedAt = Date.now();
   state.solvedAt = null;
   broadcast();
   emitLeaderboards();
+}
+
+// Finds a registered team player by id, across every team. Returns
+// { id, name, teamId } or null.
+function findTeamPlayer(playerId) {
+  if (!state.teams.enabled || !playerId) return null;
+  for (const team of state.teams.list) {
+    const pl = team.players.find((p) => p.id === playerId);
+    if (pl) return { id: pl.id, name: pl.name, teamId: team.id };
+  }
+  return null;
+}
+
+// Splits `names` into `teamCount` teams of `teamSize` players each, gives
+// each team a random, unique colour (Red/Blue/Green/Yellow), and starts a
+// fresh round so the scoreboard is clean for the new match.
+function setupTeams(p) {
+  const teamCount = Math.max(2, Math.min(4, parseInt(p.teamCount, 10) || 2));
+  const teamSize = Math.max(1, Math.min(5, parseInt(p.teamSize, 10) || 1));
+  const totalNeeded = teamCount * teamSize;
+
+  let names = Array.isArray(p.names) ? p.names.map((n) => String(n || '').trim()).filter(Boolean) : [];
+  while (names.length < totalNeeded) names.push('Player ' + (names.length + 1));
+  names = names.slice(0, totalNeeded);
+
+  const colors = shuffle(TEAM_COLORS.slice()).slice(0, teamCount);
+  const usedIds = {};
+  const teams = colors.map((color, i) => {
+    const teamId = 'team-' + (i + 1);
+    const players = [];
+    for (let k = 0; k < teamSize; k++) {
+      const nm = names[i * teamSize + k];
+      let base = 'player-' + slugify(nm) + '-' + teamId;
+      let id = base;
+      let n = 2;
+      while (usedIds[id]) { id = base + '-' + n; n++; } // two players could slugify the same
+      usedIds[id] = true;
+      players.push({ id, name: nm });
+    }
+    return { id: teamId, color, name: TEAM_COLOR_LABELS[color], players };
+  });
+
+  state.teams = { enabled: true, vsLabel: teams.map(() => teamSize).join('v'), list: teams };
+  state.scores = {};
+  teams.forEach((team) => team.players.forEach((pl) => ensurePlayer(state.scores, { uniqueId: pl.id, name: pl.name })));
+  broadcast();
+  emitLeaderboards();
+}
+
+function clearTeams() {
+  state.teams = { enabled: false, vsLabel: '', list: [] };
+  broadcast();
+  emitLeaderboards();
+}
+
+// One row per team: colour, name, total points (sum of its members' round
+// points) and each member's own point/streak, for the team roster panel.
+function teamStandings() {
+  if (!state.teams.enabled) return [];
+  return state.teams.list
+    .map((team) => {
+      const members = team.players.map((pl) => {
+        const row = state.scores[pl.id];
+        return { uniqueId: pl.id, name: pl.name, points: (row && row.points) || 0, streak: (row && row.streak) || 0 };
+      });
+      const points = members.reduce((sum, m) => sum + m.points, 0);
+      return { id: team.id, color: team.color, name: team.name, points, members };
+    })
+    .sort((a, b) => b.points - a.points);
 }
 
 function broadcast() {
@@ -1001,6 +1179,7 @@ function publicState() {
     rawEventCount: state.rawEventCount,
     lastEvent: state.lastEvent,
     tiktok: state.tiktok,
+    teams: state.teams,
     cards: state.cards.map((c) => ({
       id: c.id,
       matched: c.matched,
@@ -1044,6 +1223,7 @@ function emitLeaderboards() {
   io.emit('leaderboard', {
     round: rankList(state.scores, 500, { withStreak: true }),
     allTime: rankList(state.allTimeScores, 1000),
+    teams: teamStandings(),
   });
 }
 
@@ -1363,6 +1543,7 @@ io.on('connection', (socket) => {
   socket.emit('leaderboard', {
     round: rankList(state.scores, 500, { withStreak: true }),
     allTime: rankList(state.allTimeScores, 1000),
+    teams: teamStandings(),
   });
   // Lets the page skip asking for the Sign API Key when the server has one.
   socket.emit('liveConfig', {
@@ -1422,11 +1603,23 @@ io.on('connection', (socket) => {
   }));
 
   // Manual chat from the Host console / Offline box / Test box (any mode).
+  // If a registered team player's id is included, the guess is attributed to
+  // that exact player (so their team's total updates) instead of creating a
+  // brand-new name-based identity.
   socket.on('host:manualInput', safe((p) => {
+    const teamPlayer = findTeamPlayer(p.playerId);
+    if (teamPlayer) {
+      handleIncomingComment({ uniqueId: teamPlayer.id, name: teamPlayer.name, avatar: null }, p.text);
+      return;
+    }
     const name = String(p.user || 'Host').slice(0, 30);
     const player = name === 'Host' ? { ...HOST_PLAYER } : { uniqueId: 'named-' + name.toLowerCase(), name, avatar: null };
     handleIncomingComment(player, p.text);
   }));
+
+  // Multiplayer Teams (Offline Mode): set up / clear the current match.
+  socket.on('host:setupTeams', safe((p) => setupTeams(p), true));
+  socket.on('host:clearTeams', safe(() => clearTeams(), true));
 
   // Test Mode: a plausible fake viewer comment, picking only cards that are
   // still face-down so every click does something.
