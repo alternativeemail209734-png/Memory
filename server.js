@@ -821,28 +821,37 @@ const EMOJI_PACKS = {
   },
   superheroes: {
     label: 'Superheroes',
-    // Generic hero/action imagery (no copyrighted characters) - masked
-    // figures, powers and gadget icons.
+    // 48 individually hand-drawn hero icons (public/symbols/h-*.png) - no
+    // copyrighted characters, no colour-tint duplicates. Every picture is a
+    // genuinely different silhouette (mask, cape, shield, bolt, gauntlet,
+    // rocket, DNA helix, force field, etc.) instead of the same shape
+    // recoloured, and each reads clearly at small size and across devices
+    // (avoids the multi-codepoint hero/mask emoji that render inconsistently
+    // - or as plain boxes - on some platforms).
     emojis: [
-      '🦸', '🦸‍♂️', '🦸‍♀️', '🦹', '🦹‍♂️', '🦹‍♀️', '🕷️', '🦇',
-      '💥', '⚡', '🔥', '🌪️', '🌊', '☄️', '🛡️', '🗡️',
-      '🏹', '💪', '👊', '✊', '🤛', '🤜', '🦾', '🦿',
-      '🎭', '🕶️', '🧤', '👁️', '🔰', '⭐', '🌟', '✨',
-      '💫', '🔮', '⚙️', '🧬', '🚀', '🛸', '🔋', '🧲',
-      '🌐', '🎇', '🎆', '🏆', '👑', '💎', '🔱', '⚔️',
+      'img:h-mask:0', 'img:h-cape:0', 'img:h-shield:0', 'img:h-bolt:0', 'img:h-burst:0', 'img:h-fist:0', 'img:h-wingedboot:0', 'img:h-beltgadget:0',
+      'img:h-rocket:0', 'img:h-jetpack:0', 'img:h-gear:0', 'img:h-grapple:0', 'img:h-batwing:0', 'img:h-web:0', 'img:h-flame:0', 'img:h-tornado:0',
+      'img:h-wave:0', 'img:h-wing:0', 'img:h-bow:0', 'img:h-sword:0', 'img:h-gem:0', 'img:h-crown:0', 'img:h-trophy:0', 'img:h-eye:0',
+      'img:h-visor:0', 'img:h-musclearm:0', 'img:h-roboarm:0', 'img:h-dna:0', 'img:h-atom:0', 'img:h-forcefield:0', 'img:h-boomerang:0', 'img:h-starbadge:0',
+      'img:h-wings:0', 'img:h-capeswirl:0', 'img:h-phonebooth:0', 'img:h-fortress:0', 'img:h-searchlight:0', 'img:h-compass:0', 'img:h-flyingfigure:0', 'img:h-comet:0',
+      'img:h-chainbreak:0', 'img:h-emblem:0', 'img:h-spikedgauntlet:0', 'img:h-energyorb:0', 'img:h-katana:0', 'img:h-helmet:0', 'img:h-scale:0', 'img:h-globe:0',
     ],
   },
   winter: {
     label: 'Winter Wonderland',
-    // 12 hand-drawn, unmistakably-winter pictures (snowflake, snowman,
-    // mitten, scarf, ice skate, crossed skis, sled, snow-capped pine,
-    // igloo, penguin, hot cocoa, snowy mountain), each tinted four ways
-    // - no generic/off-theme pictures like coffee, fire or wolves.
+    // 48 individually hand-drawn winter icons (public/symbols/w2-*.png) -
+    // strictly on-theme (snow, ice, cold-weather clothing, winter animals
+    // and cabin/holiday-adjacent objects) and no colour-tint duplicates:
+    // every picture is a genuinely different, everyday/relatable shape
+    // (igloo, penguin, snowman, mitten, sled, hot cocoa, husky, aurora,
+    // snow cabin, etc.) instead of the same 12 shapes recoloured four ways.
     emojis: [
-      'img:w-snowflake:0', 'img:w-snowman:0', 'img:w-mitten:0', 'img:w-scarf:0', 'img:w-iceskate:0', 'img:w-skis:0', 'img:w-sled:0', 'img:w-pinetree:0', 'img:w-igloo:0', 'img:w-penguin:0', 'img:w-cocoa:0', 'img:w-mountain:0',
-      'img:w-snowflake:120', 'img:w-snowman:120', 'img:w-mitten:120', 'img:w-scarf:120', 'img:w-iceskate:120', 'img:w-skis:120', 'img:w-sled:120', 'img:w-pinetree:120', 'img:w-igloo:120', 'img:w-penguin:120', 'img:w-cocoa:120', 'img:w-mountain:120',
-      'img:w-snowflake:210', 'img:w-snowman:210', 'img:w-mitten:210', 'img:w-scarf:210', 'img:w-iceskate:210', 'img:w-skis:210', 'img:w-sled:210', 'img:w-pinetree:210', 'img:w-igloo:210', 'img:w-penguin:210', 'img:w-cocoa:210', 'img:w-mountain:210',
-      'img:w-snowflake:300', 'img:w-snowman:300', 'img:w-mitten:300', 'img:w-scarf:300', 'img:w-iceskate:300', 'img:w-skis:300', 'img:w-sled:300', 'img:w-pinetree:300', 'img:w-igloo:300', 'img:w-penguin:300', 'img:w-cocoa:300', 'img:w-mountain:300',
+      'img:w2-snowflake:0', 'img:w2-snowman:0', 'img:w2-mitten:0', 'img:w2-scarf:0', 'img:w2-iceskate:0', 'img:w2-skis:0', 'img:w2-sled:0', 'img:w2-pinetree:0',
+      'img:w2-igloo:0', 'img:w2-penguin:0', 'img:w2-cocoa:0', 'img:w2-mountain:0', 'img:w2-snowball:0', 'img:w2-beanie:0', 'img:w2-earmuffs:0', 'img:w2-icicles:0',
+      'img:w2-snowglobe:0', 'img:w2-hockey:0', 'img:w2-polarbear:0', 'img:w2-arcticfox:0', 'img:w2-reindeer:0', 'img:w2-snowshoe:0', 'img:w2-thermometer:0', 'img:w2-window:0',
+      'img:w2-skilift:0', 'img:w2-sleigh:0', 'img:w2-goggles:0', 'img:w2-coat:0', 'img:w2-frozenlake:0', 'img:w2-wreath:0', 'img:w2-waterbottle:0', 'img:w2-socks:0',
+      'img:w2-fireplace:0', 'img:w2-seal:0', 'img:w2-walrus:0', 'img:w2-candycane:0', 'img:w2-sweater:0', 'img:w2-thermos:0', 'img:w2-skislope:0', 'img:w2-icecrystal:0',
+      'img:w2-snowboots:0', 'img:w2-gloves:0', 'img:w2-husky:0', 'img:w2-aurora:0', 'img:w2-snowcloud:0', 'img:w2-snowangel:0', 'img:w2-icefishing:0', 'img:w2-cabin:0',
     ],
   },
   landmarks: {
