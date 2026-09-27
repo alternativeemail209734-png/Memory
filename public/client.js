@@ -145,6 +145,29 @@
     setHostConsoleCollapsed(saved === '1');
   })();
 
+  // ---- Player Guess Bar collapse/expand (remembered on this device) ------
+  // Mirrors the Host Console pattern: collapsing hides the hint text and
+  // the type-a-guess row, but (unlike the console) the player name chips
+  // stay visible and tappable in a smaller, compact form, since that's the
+  // one thing players need even when the bar is tucked away.
+  const PLAYER_GUESS_BAR_STORAGE_KEY = 'memoryLivePlayerGuessBarCollapsed';
+  const playerGuessBarEl_ = document.getElementById('playerGuessBar');
+  const playerGuessBarToggle = document.getElementById('playerGuessBarToggle');
+  function setPlayerGuessBarCollapsed(collapsed) {
+    playerGuessBarEl_.classList.toggle('collapsed', collapsed);
+    playerGuessBarToggle.innerHTML = collapsed ? '&#9660; Show' : '&#9650; Hide';
+    playerGuessBarToggle.setAttribute('aria-label', collapsed ? 'Show guess controls' : 'Hide guess controls');
+    try { localStorage.setItem(PLAYER_GUESS_BAR_STORAGE_KEY, collapsed ? '1' : '0'); } catch (e) { /* ignore */ }
+  }
+  playerGuessBarToggle.addEventListener('click', () => {
+    setPlayerGuessBarCollapsed(!playerGuessBarEl_.classList.contains('collapsed'));
+  });
+  (function initPlayerGuessBar() {
+    let saved = null;
+    try { saved = localStorage.getItem(PLAYER_GUESS_BAR_STORAGE_KEY); } catch (e) { /* ignore */ }
+    setPlayerGuessBarCollapsed(saved === '1');
+  })();
+
   // ---- Full Screen toggle (button hidden if the browser can't do it) ----
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   const appShellEl = document.querySelector('.app-shell');
@@ -441,10 +464,13 @@
     if (!uniqueId || !lastLeaderboard.teams || !lastLeaderboard.teams.length) return null;
     for (const team of lastLeaderboard.teams) {
       const member = (team.members || []).find((m) => m.uniqueId === uniqueId);
-      if (member) return { color: team.color, name: team.name, points: team.points };
+      if (member) return { color: team.color, name: team.name, points: team.points, solo: !!team.solo };
     }
     return null;
   }
+  // Solo (Without Team) players have no team total worth showing next to
+  // their own score - it's the same number - so this badge is skipped for
+  // them entirely (see fillScoreList below).
   function makeTeamBadge(info, big) {
     const span = document.createElement('span');
     span.className = 'team-total-badge team-color-' + info.color + (big ? ' team-total-badge-lg' : '');
@@ -492,7 +518,7 @@
       li.appendChild(pts);
       if (withTeam) {
         const teamInfo = teamInfoFor(row.uniqueId);
-        if (teamInfo) li.appendChild(makeTeamBadge(teamInfo, windowRows));
+        if (teamInfo && !teamInfo.solo) li.appendChild(makeTeamBadge(teamInfo, windowRows));
       }
       listEl.appendChild(li);
     });
@@ -606,7 +632,7 @@
       toast.appendChild(pts);
     }
     const teamInfo = teamInfoFor(r.uniqueId);
-    if (teamInfo) toast.appendChild(makeTeamBadge(teamInfo, false));
+    if (teamInfo && !teamInfo.solo) toast.appendChild(makeTeamBadge(teamInfo, false));
     toastAreaEl.appendChild(toast);
     scheduleToastRemoval(toast);
   }
@@ -728,10 +754,14 @@
       name.className = 'round-end-name team-standing-name';
       name.textContent = team.name;
       li.appendChild(name);
-      const members = document.createElement('span');
-      members.className = 'team-standing-members';
-      members.textContent = (team.members || []).map((m) => m.name + ' (' + m.points + ')').join(', ');
-      li.appendChild(members);
+      // Solo (Without Team): the member row would just repeat the name and
+      // points already shown, so skip it there.
+      if (!team.solo) {
+        const members = document.createElement('span');
+        members.className = 'team-standing-members';
+        members.textContent = (team.members || []).map((m) => m.name + ' (' + m.points + ')').join(', ');
+        li.appendChild(members);
+      }
       const pts = document.createElement('span');
       pts.className = 'round-end-points';
       pts.textContent = team.points + (team.points === 1 ? ' pt' : ' pts');
@@ -810,11 +840,16 @@
   // player chip was last tapped.
   const teamCountSelect = document.getElementById('teamCountSelect');
   const teamSizeSelect = document.getElementById('teamSizeSelect');
+  const soloCountSelect = document.getElementById('soloCountSelect');
+  const teamGroupedFieldsEl = document.getElementById('teamGroupedFields');
+  const soloGroupedFieldsEl = document.getElementById('soloGroupedFields');
+  const groupingTabsEl = document.getElementById('groupingTabs');
   const teamNameInputsEl = document.getElementById('teamNameInputs');
   const teamRosterEl = document.getElementById('teamRoster');
   const teamPlayerChipsEl = document.getElementById('teamPlayerChips');
   const teamGuessHintEl = document.getElementById('teamGuessHint');
   let activeTeamPlayer = null; // { id, name } - whoever's chip was tapped last
+  let currentGrouping = 'team'; // 'team' (grouped teams) or 'solo' (Without Team - free-for-all)
 
   // Shared by the typed guess box and tap-to-guess on the board: attribute
   // to the tapped team player when one is active, otherwise plain "Host".
@@ -824,10 +859,38 @@
       : { user: 'Host', text: raw };
   }
 
+  // "Teams" groups several players under one colour/name per team.
+  // "Without Team" (free-for-all) gives every single player their own
+  // colour - 1 vs 1, 1 vs 1 vs 1, up to 6 players.
+  function setGrouping(mode) {
+    currentGrouping = mode === 'solo' ? 'solo' : 'team';
+    groupingTabsEl.querySelectorAll('.grouping-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.getAttribute('data-grouping') === currentGrouping);
+    });
+    teamGroupedFieldsEl.hidden = currentGrouping === 'solo';
+    soloGroupedFieldsEl.hidden = currentGrouping !== 'solo';
+    rebuildTeamNameInputs();
+  }
+  groupingTabsEl.querySelectorAll('.grouping-btn').forEach((btn) => {
+    btn.addEventListener('click', () => setGrouping(btn.getAttribute('data-grouping')));
+  });
+
   function rebuildTeamNameInputs() {
+    teamNameInputsEl.innerHTML = '';
+    if (currentGrouping === 'solo') {
+      const count = parseInt(soloCountSelect.value, 10) || 2;
+      for (let i = 0; i < count; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'team-name-input solo-name-input';
+        input.placeholder = 'Player ' + (i + 1) + ' name';
+        input.autocomplete = 'off';
+        teamNameInputsEl.appendChild(input);
+      }
+      return;
+    }
     const count = parseInt(teamCountSelect.value, 10) || 2;
     const size = parseInt(teamSizeSelect.value, 10) || 1;
-    teamNameInputsEl.innerHTML = '';
     for (let t = 0; t < count; t++) {
       const group = document.createElement('div');
       group.className = 'team-name-group';
@@ -848,13 +911,17 @@
   }
   teamCountSelect.addEventListener('change', rebuildTeamNameInputs);
   teamSizeSelect.addEventListener('change', rebuildTeamNameInputs);
+  soloCountSelect.addEventListener('change', rebuildTeamNameInputs);
   rebuildTeamNameInputs();
 
   document.getElementById('startTeamsBtn').addEventListener('click', () => {
     const names = Array.from(teamNameInputsEl.querySelectorAll('.team-name-input')).map((i) => i.value.trim());
     socket.emit('host:setupTeams', {
-      teamCount: parseInt(teamCountSelect.value, 10) || 2,
-      teamSize: parseInt(teamSizeSelect.value, 10) || 1,
+      grouping: currentGrouping,
+      teamCount: currentGrouping === 'solo'
+        ? (parseInt(soloCountSelect.value, 10) || 2)
+        : (parseInt(teamCountSelect.value, 10) || 2),
+      teamSize: currentGrouping === 'solo' ? 1 : (parseInt(teamSizeSelect.value, 10) || 1),
       names,
     });
   });
@@ -883,10 +950,14 @@
       title.className = 'team-roster-title';
       title.textContent = team.name;
       box.appendChild(title);
-      const names = document.createElement('div');
-      names.className = 'team-roster-names';
-      names.textContent = team.players.map((p) => p.name).join(', ');
-      box.appendChild(names);
+      // Solo (Without Team): the title already IS the one player's name,
+      // so the names line would just repeat it - skip it.
+      if (team.players.length > 1) {
+        const names = document.createElement('div');
+        names.className = 'team-roster-names';
+        names.textContent = team.players.map((p) => p.name).join(', ');
+        box.appendChild(names);
+      }
       teamRosterEl.appendChild(box);
     });
 

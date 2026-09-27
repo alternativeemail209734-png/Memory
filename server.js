@@ -908,8 +908,14 @@ const DEFAULT_EMOJI_PACK = 'kawaii';
 // 2-4 teams of 1-5 players each, and each team gets a random colour. Team
 // points are just the sum of its members' round points.
 // ---------------------------------------------------------------------------
-const TEAM_COLORS = ['red', 'blue', 'green', 'yellow'];
-const TEAM_COLOR_LABELS = { red: 'Red Team', blue: 'Blue Team', green: 'Green Team', yellow: 'Yellow Team' };
+const TEAM_COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+const TEAM_COLOR_LABELS = {
+  red: 'Red Team', blue: 'Blue Team', green: 'Green Team', yellow: 'Yellow Team',
+  purple: 'Purple Team', orange: 'Orange Team',
+};
+// "Without Team" (free-for-all): every player is solo - 1 vs 1 vs 1 ... up
+// to 6 players, each with their own colour from the same palette above.
+const SOLO_MAX_PLAYERS = 6;
 
 function slugify(s) {
   return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-+|-+$)/g, '') || 'p';
@@ -974,7 +980,7 @@ const state = {
   rawEventCount: 0,
   lastEvent: { user: '', text: '', read: null, kind: null },
   tiktok: { connected: false, connecting: false, uniqueId: null, lastError: null, statusText: 'Not connected.' },
-  teams: { enabled: false, vsLabel: '', list: [] },  // Offline Mode multiplayer teams (see setupTeams below)
+  teams: { enabled: false, solo: false, vsLabel: '', list: [] },  // Offline Mode multiplayer teams (see setupTeams below)
 };
 
 const avatarCache = {};   // uniqueId -> last known photo URL
@@ -1106,11 +1112,18 @@ function findTeamPlayer(playerId) {
 }
 
 // Splits `names` into `teamCount` teams of `teamSize` players each, gives
-// each team a random, unique colour (Red/Blue/Green/Yellow), and starts a
-// fresh round so the scoreboard is clean for the new match.
+// each team a random, unique colour, and starts a fresh round so the
+// scoreboard is clean for the new match.
+//
+// p.grouping === 'solo' means "Without Team": every player is their own
+// solo "team" of 1 (1 vs 1, 1 vs 1 vs 1, ... up to SOLO_MAX_PLAYERS), each
+// with their own colour and their own name shown instead of a colour label.
 function setupTeams(p) {
-  const teamCount = Math.max(2, Math.min(4, parseInt(p.teamCount, 10) || 2));
-  const teamSize = Math.max(1, Math.min(5, parseInt(p.teamSize, 10) || 1));
+  const solo = p.grouping === 'solo';
+  const teamCount = solo
+    ? Math.max(2, Math.min(SOLO_MAX_PLAYERS, parseInt(p.teamCount, 10) || 2))
+    : Math.max(2, Math.min(4, parseInt(p.teamCount, 10) || 2));
+  const teamSize = solo ? 1 : Math.max(1, Math.min(5, parseInt(p.teamSize, 10) || 1));
   const totalNeeded = teamCount * teamSize;
 
   let names = Array.isArray(p.names) ? p.names.map((n) => String(n || '').trim()).filter(Boolean) : [];
@@ -1131,10 +1144,18 @@ function setupTeams(p) {
       usedIds[id] = true;
       players.push({ id, name: nm });
     }
-    return { id: teamId, color, name: TEAM_COLOR_LABELS[color], players };
+    // Solo (Without Team): show the player's own name instead of a colour
+    // label, since a "team" here is really just that one player.
+    const teamName = solo ? players[0].name : TEAM_COLOR_LABELS[color];
+    return { id: teamId, color, name: teamName, players };
   });
 
-  state.teams = { enabled: true, vsLabel: teams.map(() => teamSize).join('v'), list: teams };
+  state.teams = {
+    enabled: true,
+    solo,
+    vsLabel: solo ? teams.map(() => '1').join('v') : teams.map(() => teamSize).join('v'),
+    list: teams,
+  };
   state.scores = {};
   teams.forEach((team) => team.players.forEach((pl) => ensurePlayer(state.scores, { uniqueId: pl.id, name: pl.name })));
   broadcast();
@@ -1142,7 +1163,7 @@ function setupTeams(p) {
 }
 
 function clearTeams() {
-  state.teams = { enabled: false, vsLabel: '', list: [] };
+  state.teams = { enabled: false, solo: false, vsLabel: '', list: [] };
   broadcast();
   emitLeaderboards();
 }
@@ -1158,7 +1179,7 @@ function teamStandings() {
         return { uniqueId: pl.id, name: pl.name, points: (row && row.points) || 0, streak: (row && row.streak) || 0 };
       });
       const points = members.reduce((sum, m) => sum + m.points, 0);
-      return { id: team.id, color: team.color, name: team.name, points, members };
+      return { id: team.id, color: team.color, name: team.name, points, members, solo: !!state.teams.solo };
     })
     .sort((a, b) => b.points - a.points);
 }

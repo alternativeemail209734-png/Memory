@@ -1445,7 +1445,23 @@ html, body {
 }
 .teams-box .hint { margin: 0 0 2px 0; }
 
+/* Teams vs Without Team (free-for-all) grouping picker */
+.grouping-tabs { display: flex; gap: 6px; }
+.grouping-btn {
+  flex: 1;
+  background: var(--bg-input);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 7px 6px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.grouping-btn.active { background: var(--pink); color: #fff; border-color: var(--pink); }
+
 .team-name-inputs { display: flex; flex-direction: column; gap: 8px; }
+.solo-name-input { background: var(--bg-input); }
 .team-name-group {
   display: flex;
   flex-direction: column;
@@ -1488,10 +1504,14 @@ html, body {
 .team-color-blue   { background: #3b82f6; border-color: #1d4ed8; }
 .team-color-green  { background: #22c55e; border-color: #15803d; }
 .team-color-yellow { background: #eab308; border-color: #a16207; color: #3a2c00; }
+.team-color-purple { background: #a855f7; border-color: #7e22ce; }
+.team-color-orange { background: #f97316; border-color: #c2410c; }
 .team-roster-card.team-color-red    { background: rgba(229,72,77,0.12);  border-left-color: #e5484d; }
 .team-roster-card.team-color-blue   { background: rgba(59,130,246,0.12); border-left-color: #3b82f6; }
 .team-roster-card.team-color-green  { background: rgba(34,197,94,0.12);  border-left-color: #22c55e; }
 .team-roster-card.team-color-yellow { background: rgba(234,179,8,0.14);  border-left-color: #eab308; }
+.team-roster-card.team-color-purple { background: rgba(168,85,247,0.12); border-left-color: #a855f7; }
+.team-roster-card.team-color-orange { background: rgba(249,115,22,0.13); border-left-color: #f97316; }
 
 .team-standing-row {
   display: flex;
@@ -1505,6 +1525,8 @@ html, body {
 .team-standing-row.team-color-blue   { border-left-color: #3b82f6; background: rgba(59,130,246,0.08); }
 .team-standing-row.team-color-green  { border-left-color: #22c55e; background: rgba(34,197,94,0.08); }
 .team-standing-row.team-color-yellow { border-left-color: #eab308; background: rgba(234,179,8,0.10); }
+.team-standing-row.team-color-purple { border-left-color: #a855f7; background: rgba(168,85,247,0.08); }
+.team-standing-row.team-color-orange { border-left-color: #f97316; background: rgba(249,115,22,0.09); }
 .team-standing-name { font-weight: 700; }
 .team-standing-members { font-size: 11.5px; opacity: 0.75; flex: 1; }
 
@@ -1516,35 +1538,69 @@ html, body {
 .player-guess-bar {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 6px;
+  padding: 6px 12px 8px 12px;
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
 }
-.player-guess-hint { margin: 0; transition: color 0.15s ease; }
+.player-guess-bar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.player-guess-bar-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.player-guess-bar-toggle {
+  background: transparent;
+  border: none;
+  color: var(--cyan);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 3px 5px;
+}
+.player-guess-hint { margin: 0; font-size: 12.5px; transition: color 0.15s ease; }
 .player-guess-hint.attn { color: var(--pink, #ec5f74); animation: guessHintPulse 0.9s ease; }
 @keyframes guessHintPulse {
   0%, 100% { transform: scale(1); }
   30% { transform: scale(1.04); }
 }
-.player-guess-bar .team-player-chips { margin: 0; }
+.player-guess-bar .team-player-chips { margin: 0; gap: 5px; }
 .player-guess-bar .team-player-chip {
-  padding: 10px 16px;
-  font-size: 14px;
-  min-height: 40px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  min-height: 32px;
 }
 .player-guess-input-row { margin: 0; }
 .player-guess-input-row input {
   flex: 1;
   min-width: 0;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--bg-input);
   color: var(--text);
   font-size: 16px; /* 16px stops iOS Safari auto-zooming the page on focus */
 }
-.player-guess-input-row .btn { padding: 12px 18px; font-size: 14px; }
+.player-guess-input-row .btn { padding: 10px 16px; font-size: 13.5px; }
+
+/* Collapsed (like the Host Console): the hint text and the type-a-guess
+   row hide, but the player name chips stay visible - just tappable and
+   even smaller, so whoever's turn it is can still identify themselves
+   without the bar taking up space. */
+.player-guess-bar.collapsed .player-guess-hint,
+.player-guess-bar.collapsed .player-guess-input-row { display: none; }
+.player-guess-bar.collapsed .team-player-chip {
+  padding: 5px 10px;
+  font-size: 11.5px;
+  min-height: 26px;
+}
 
 /* Tap-to-guess on the board: face-down, unmatched cards get a pointer
    cursor in Offline Mode, and a tapped-but-not-yet-submitted card gets a
