@@ -1,3 +1,7 @@
+# What changed (part 16)
+
+- **Team totals shown next to each player's own score:** in Multiplayer Teams, every place a player's individual round score appears - the This Round leaderboard (both the on-page panel and the trophy window), the always-on top-5 scoreboard, the round-end "Top Scorers" window, and the real-time guess pop-up - now also shows a small colored badge with that player's team and its current round total right alongside their own points. All-Time scores are unaffected (a team total is a per-round number, so it's never mixed into the All-Time list).
+
 # What changed (part 15)
 
 - **Guessing moved out of Settings, onto the main game screen:** in Offline Mode (solo or Multiplayer Teams), there's now a **Player Guess Bar** right under the top bar on the main screen - nobody has to open the Settings gear to make a guess anymore. It shows the tap-to-pick player chips (once Teams are running) and a guess box. Settings \u2192 Offline Mode now only holds the one-time Multiplayer Teams setup (pick teams/players, names, Start/Clear).

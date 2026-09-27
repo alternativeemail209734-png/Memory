@@ -31,7 +31,7 @@ With both set, the game connects to your LIVE **by itself** every time it starts
 2. Upload every file from this folder again, on top of the old ones (same names, same `public` folder). Choose to replace when asked.
 3. Render notices the change and updates your game by itself in a minute or two.
 
-This update (Part 15) changed `public/client.js`, `public/index.html` and `public/style.css`: guessing now happens right on the main game screen instead of inside Settings, and you can tap two cards on the board instead of typing numbers. See `CHANGES.md` for the full list.
+This update (Part 16) changed `public/client.js` and `public/style.css`: wherever a team player's own score shows (leaderboards, the scoreboard, round-end windows, the guess pop-up), a small colored badge now shows their team's current round total right next to it. See `CHANGES.md` for the full list.
 - Tap **Settings** (the gear) to pick Offline, Test or Live mode, to connect TikTok, and to pick a **Card Symbols** pack. There are 18 packs now: the originals (Kawaii Stickers, Classic Mix, Animals & Critters, Sweets & Treats, Space & Sky, Holiday & Celebration, Faces & Fun, Careers & Occupations, Vehicles & Travel, Buildings & Places) plus 8 new ones - **World Flags**, **Superheroes**, **Winter Wonderland**, **Famous Landmarks**, **Musical Instruments**, **Dinosaur Age**, **Fantasy & Magic** and **Board Games & Toys**. Picking a new pack starts a fresh game with it right away.
 
 ### Guessing in Offline Mode (no need to open Settings)
@@ -49,7 +49,7 @@ In Settings > **Offline Mode**, use the **Multiplayer Teams** box to set the mat
 2. Type each player's name in the boxes that appear.
 3. Tap **Start Team Game**. Each team is given a random color - Red, Blue, Green or Yellow - and a roster card for each team appears, listing its players. You can close Settings now - it isn't needed again during play.
 4. To make a guess, on the main screen tap that player's name chip in the Player Guess Bar, then tap their two cards on the board (or type the numbers and tap Submit). Their points are added to their team's total automatically.
-5. Tap the trophy button and open the new **Teams** tab to see each team's color, total points, and what every member has scored.
+5. Tap the trophy button and open the new **Teams** tab to see each team's color, total points, and what every member has scored. A player's own score also carries a small colored badge showing their team's current round total, everywhere their score shows - the leaderboards, the top-5 scoreboard, the round-end window and the live guess pop-up.
 6. Tap **Clear Teams** (in Settings > Offline Mode) to end the team match and go back to ordinary solo Offline play.
 
 - **Combo streaks:** a viewer who matches pairs back-to-back earns bonus points - the 2nd pair in a row is worth 2 points, the 3rd worth 3, and 4+ in a row is worth 4. A wrong guess resets that viewer's streak. While someone's streak is 2 or more, a small flame badge (e.g. "🔥×3") shows next to their name in the guess pop-up and the This Round leaderboard.

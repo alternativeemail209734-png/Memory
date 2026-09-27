@@ -433,8 +433,29 @@
     const medals = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
     return idx < 3 ? medals[idx] : String(idx + 1);
   }
+  // Looks up which team (if any) currently owns this player id, using the
+  // latest team standings from the server - color, team name and the
+  // TEAM's total points for the current round (individual scores are
+  // shown right next to it, wherever a player's own row is drawn).
+  function teamInfoFor(uniqueId) {
+    if (!uniqueId || !lastLeaderboard.teams || !lastLeaderboard.teams.length) return null;
+    for (const team of lastLeaderboard.teams) {
+      const member = (team.members || []).find((m) => m.uniqueId === uniqueId);
+      if (member) return { color: team.color, name: team.name, points: team.points };
+    }
+    return null;
+  }
+  function makeTeamBadge(info, big) {
+    const span = document.createElement('span');
+    span.className = 'team-total-badge team-color-' + info.color + (big ? ' team-total-badge-lg' : '');
+    span.textContent = (big ? info.name + ' team ' : '') + info.points + (info.points === 1 ? ' pt' : ' pts');
+    span.title = info.name + ' team total this round: ' + info.points + (info.points === 1 ? ' pt' : ' pts');
+    return span;
+  }
   // kind 'window' = big rows for the pop-up windows, 'inline' = compact rows.
-  function fillScoreList(listEl, list, kind) {
+  // withTeam: only true for THIS ROUND lists - a team's total is a round
+  // total, so it is never shown next to an All-Time score.
+  function fillScoreList(listEl, list, kind, withTeam) {
     const windowRows = kind === 'window';
     listEl.innerHTML = '';
     if (!list || !list.length) {
@@ -469,6 +490,10 @@
       pts.className = windowRows ? 'round-end-points' : 'lb-points';
       pts.textContent = windowRows ? row.points + (row.points === 1 ? ' pt' : ' pts') : row.points;
       li.appendChild(pts);
+      if (withTeam) {
+        const teamInfo = teamInfoFor(row.uniqueId);
+        if (teamInfo) li.appendChild(makeTeamBadge(teamInfo, windowRows));
+      }
       listEl.appendChild(li);
     });
   }
@@ -580,6 +605,8 @@
       pts.textContent = d.points;
       toast.appendChild(pts);
     }
+    const teamInfo = teamInfoFor(r.uniqueId);
+    if (teamInfo) toast.appendChild(makeTeamBadge(teamInfo, false));
     toastAreaEl.appendChild(toast);
     scheduleToastRemoval(toast);
   }
@@ -658,13 +685,13 @@
     roundEndSummary.hidden = false;
     roundEndSummary.textContent = 'All ' + payload.totalPairs + ' pairs found on ' + payload.levelName + ' in ' + formatDuration(payload.elapsedMs) + '.';
     roundEndList.classList.remove('capped-20');
-    fillScoreList(roundEndList, payload.leaderboard || [], 'window');
+    fillScoreList(roundEndList, payload.leaderboard || [], 'window', true);
     roundEndOverlay.hidden = false;
     roundEndTimers.push(setTimeout(() => {
       roundEndTitle.textContent = 'All-Time Top Scorers';
       roundEndSummary.hidden = true;
       roundEndList.classList.add('capped-20');
-      fillScoreList(roundEndList, payload.allTimeLeaderboard || [], 'window');
+      fillScoreList(roundEndList, payload.allTimeLeaderboard || [], 'window', false);
       roundEndTimers.push(setTimeout(() => { roundEndOverlay.hidden = true; }, Math.round(timingPrefs.allTimeWindowSeconds * 1000)));
     }, Math.round(timingPrefs.roundWindowSeconds * 1000)));
   }
@@ -714,8 +741,8 @@
   }
 
   function renderLeaderboardModal() {
-    fillScoreList(modalRoundList, lastLeaderboard.round, 'window');
-    fillScoreList(modalAllTimeList, lastLeaderboard.allTime, 'window');
+    fillScoreList(modalRoundList, lastLeaderboard.round, 'window', true);
+    fillScoreList(modalAllTimeList, lastLeaderboard.allTime, 'window', false);
     fillTeamStandingsList(modalTeamsList, lastLeaderboard.teams);
   }
   function closeLeaderboardModal() { leaderboardOverlay.hidden = true; }
@@ -975,10 +1002,10 @@
 
   socket.on('leaderboard', (data) => {
     lastLeaderboard = { round: (data && data.round) || [], allTime: (data && data.allTime) || [], teams: (data && data.teams) || [] };
-    fillScoreList(leaderboardListEl, lastLeaderboard.round, 'inline');
-    fillScoreList(allTimeListEl, lastLeaderboard.allTime, 'inline');
-    fillScoreList(liveRoundEl, lastLeaderboard.round.slice(0, 5), 'inline');
-    fillScoreList(liveAllEl, lastLeaderboard.allTime.slice(0, 5), 'inline');
+    fillScoreList(leaderboardListEl, lastLeaderboard.round, 'inline', true);
+    fillScoreList(allTimeListEl, lastLeaderboard.allTime, 'inline', false);
+    fillScoreList(liveRoundEl, lastLeaderboard.round.slice(0, 5), 'inline', true);
+    fillScoreList(liveAllEl, lastLeaderboard.allTime.slice(0, 5), 'inline', false);
     lbTeamsTab.hidden = !lastLeaderboard.teams.length;
     if (!leaderboardOverlay.hidden) renderLeaderboardModal();
   });

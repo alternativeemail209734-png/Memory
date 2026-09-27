@@ -1558,3 +1558,23 @@ html, body {
     0 4px 9px rgba(0,0,0,0.18),
     inset 0 1px 1px rgba(255,255,255,0.5);
 }
+
+/* ---- Team total badge --------------------------------------------------
+   Shown next to a team player's OWN score (This Round lists, the live
+   top-5 scoreboard, round-end windows, and the real-time guess pop-up) so
+   their team's running total is always visible right alongside it. Reuses
+   the .team-color-* palette already defined above for chips/rosters. */
+.team-total-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 7px;
+  line-height: 1.5;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.team-total-badge-lg { font-size: 12px; padding: 3px 10px; }
