@@ -800,13 +800,23 @@ const EMOJI_PACKS = {
   },
   flags: {
     label: 'World Flags',
+    // Real national flags (48 real countries), drawn as their own picture
+    // files instead of Unicode flag emoji - flag emoji render as plain
+    // two-letter codes on some systems (notably Windows), so a picture
+    // guarantees every viewer actually sees a real flag.
     emojis: [
-      '🇺🇸', '🇬🇧', '🇫🇷', '🇩🇪', '🇮🇹', '🇪🇸', '🇵🇹', '🇳🇱',
-      '🇧🇪', '🇨🇭', '🇦🇹', '🇸🇪', '🇳🇴', '🇩🇰', '🇫🇮', '🇮🇸',
-      '🇮🇪', '🇵🇱', '🇬🇷', '🇹🇷', '🇷🇺', '🇺🇦', '🇯🇵', '🇰🇷',
-      '🇨🇳', '🇮🇳', '🇮🇩', '🇹🇭', '🇻🇳', '🇵🇭', '🇲🇾', '🇸🇬',
-      '🇦🇺', '🇳🇿', '🇨🇦', '🇲🇽', '🇧🇷', '🇦🇷', '🇨🇱', '🇨🇴',
-      '🇵🇪', '🇪🇬', '🇿🇦', '🇳🇬', '🇰🇪', '🇲🇦', '🇸🇦', '🇦🇪',
+      'img:flag-us:0', 'img:flag-gb:0', 'img:flag-fr:0', 'img:flag-de:0',
+      'img:flag-it:0', 'img:flag-es:0', 'img:flag-pt:0', 'img:flag-nl:0',
+      'img:flag-be:0', 'img:flag-ch:0', 'img:flag-at:0', 'img:flag-se:0',
+      'img:flag-no:0', 'img:flag-dk:0', 'img:flag-fi:0', 'img:flag-is:0',
+      'img:flag-ie:0', 'img:flag-pl:0', 'img:flag-gr:0', 'img:flag-tr:0',
+      'img:flag-ru:0', 'img:flag-ua:0', 'img:flag-jp:0', 'img:flag-kr:0',
+      'img:flag-cn:0', 'img:flag-in:0', 'img:flag-id:0', 'img:flag-th:0',
+      'img:flag-vn:0', 'img:flag-ph:0', 'img:flag-my:0', 'img:flag-sg:0',
+      'img:flag-au:0', 'img:flag-nz:0', 'img:flag-ca:0', 'img:flag-mx:0',
+      'img:flag-br:0', 'img:flag-ar:0', 'img:flag-cl:0', 'img:flag-co:0',
+      'img:flag-pe:0', 'img:flag-eg:0', 'img:flag-za:0', 'img:flag-ng:0',
+      'img:flag-ke:0', 'img:flag-ma:0', 'img:flag-sa:0', 'img:flag-ae:0',
     ],
   },
   superheroes: {
@@ -824,24 +834,28 @@ const EMOJI_PACKS = {
   },
   winter: {
     label: 'Winter Wonderland',
+    // 12 hand-drawn, unmistakably-winter pictures (snowflake, snowman,
+    // mitten, scarf, ice skate, crossed skis, sled, snow-capped pine,
+    // igloo, penguin, hot cocoa, snowy mountain), each tinted four ways
+    // - no generic/off-theme pictures like coffee, fire or wolves.
     emojis: [
-      '❄️', '⛄', '☃️', '🎿', '🏂', '🛷', '⛸️', '🥌',
-      '🧊', '🌨️', '🏔️', '⛰️', '🌬️', '🧣', '🧤', '🧦',
-      '🥶', '🧥', '👢', '🐧', '🐻‍❄️', '🦭', '🦉', '🌡️',
-      '☕', '🥛', '🔥', '🏠', '⛺', '🕯️', '🦌', '🐺',
-      '🌫️', '💨', '🌀', '🧶', '🧵', '🪵', '🥾', '🏒',
-      '🥅', '⛷️', '🚡', '🚠', '⚡', '🌥️', '🌦️', '🌧️',
+      'img:w-snowflake:0', 'img:w-snowman:0', 'img:w-mitten:0', 'img:w-scarf:0', 'img:w-iceskate:0', 'img:w-skis:0', 'img:w-sled:0', 'img:w-pinetree:0', 'img:w-igloo:0', 'img:w-penguin:0', 'img:w-cocoa:0', 'img:w-mountain:0',
+      'img:w-snowflake:120', 'img:w-snowman:120', 'img:w-mitten:120', 'img:w-scarf:120', 'img:w-iceskate:120', 'img:w-skis:120', 'img:w-sled:120', 'img:w-pinetree:120', 'img:w-igloo:120', 'img:w-penguin:120', 'img:w-cocoa:120', 'img:w-mountain:120',
+      'img:w-snowflake:210', 'img:w-snowman:210', 'img:w-mitten:210', 'img:w-scarf:210', 'img:w-iceskate:210', 'img:w-skis:210', 'img:w-sled:210', 'img:w-pinetree:210', 'img:w-igloo:210', 'img:w-penguin:210', 'img:w-cocoa:210', 'img:w-mountain:210',
+      'img:w-snowflake:300', 'img:w-snowman:300', 'img:w-mitten:300', 'img:w-scarf:300', 'img:w-iceskate:300', 'img:w-skis:300', 'img:w-sled:300', 'img:w-pinetree:300', 'img:w-igloo:300', 'img:w-penguin:300', 'img:w-cocoa:300', 'img:w-mountain:300',
     ],
   },
   landmarks: {
     label: 'Famous Landmarks',
+    // 12 real, world-famous landmarks from capital/major cities (Paris,
+    // New York, London, Beijing, Agra, Rome, Sydney, Cairo, Pisa, Rio,
+    // Dubai, San Francisco), each hand-drawn and tinted four ways - not
+    // generic building emoji.
     emojis: [
-      '🗼', '🗽', '🕌', '⛪', '🛕', '🕍', '⛩️', '🏯',
-      '🏰', '🗿', '🎡', '🏛️', '🏟️', '⛲', '🌉', '🏙️',
-      '🌆', '🌇', '🏖️', '🏝️', '🏜️', '🏞️', '🌋', '🗻',
-      '🏔️', '🧱', '🚉', '🕋', '🏦', '🏫', '🏥', '🏨',
-      '🏬', '🏭', '💒', '🎪', '🏗️', '🌁', '🌃', '🌄',
-      '🌅', '🚂', '⛴️', '🛳️', '🗾', '🧭', '📍', '🎠',
+      'img:lm-eiffel:0', 'img:lm-liberty:0', 'img:lm-bigben:0', 'img:lm-greatwall:0', 'img:lm-tajmahal:0', 'img:lm-colosseum:0', 'img:lm-opera:0', 'img:lm-pyramids:0', 'img:lm-pisa:0', 'img:lm-christ:0', 'img:lm-burjkhalifa:0', 'img:lm-goldengate:0',
+      'img:lm-eiffel:120', 'img:lm-liberty:120', 'img:lm-bigben:120', 'img:lm-greatwall:120', 'img:lm-tajmahal:120', 'img:lm-colosseum:120', 'img:lm-opera:120', 'img:lm-pyramids:120', 'img:lm-pisa:120', 'img:lm-christ:120', 'img:lm-burjkhalifa:120', 'img:lm-goldengate:120',
+      'img:lm-eiffel:210', 'img:lm-liberty:210', 'img:lm-bigben:210', 'img:lm-greatwall:210', 'img:lm-tajmahal:210', 'img:lm-colosseum:210', 'img:lm-opera:210', 'img:lm-pyramids:210', 'img:lm-pisa:210', 'img:lm-christ:210', 'img:lm-burjkhalifa:210', 'img:lm-goldengate:210',
+      'img:lm-eiffel:300', 'img:lm-liberty:300', 'img:lm-bigben:300', 'img:lm-greatwall:300', 'img:lm-tajmahal:300', 'img:lm-colosseum:300', 'img:lm-opera:300', 'img:lm-pyramids:300', 'img:lm-pisa:300', 'img:lm-christ:300', 'img:lm-burjkhalifa:300', 'img:lm-goldengate:300',
     ],
   },
   // The four packs below reuse a smaller set of themed pictures in four
