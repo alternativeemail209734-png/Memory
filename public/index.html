@@ -52,8 +52,23 @@
     </div>
   </header>
 
-  <div class="quick-hint">
+  <div class="quick-hint" id="chatFormatHint">
     Chat format: <span class="mono highlight">1 5</span> flips cards <b>1</b> and <b>5</b>
+  </div>
+
+  <!-- Player Guess Bar: the ongoing way every player enters guesses in
+       Offline Mode, right on the main game screen. Nobody needs to open
+       Settings once a game is running - tap your name (if Teams are on),
+       then tap two cards on the board. Typing the numbers still works as
+       a fallback. Settings only holds the one-time Team setup now. -->
+  <div id="playerGuessBar" class="player-guess-bar" hidden>
+    <div id="teamPlayerChips" class="team-player-chips" hidden></div>
+    <p id="teamGuessHint" class="hint player-guess-hint" hidden>Tap your name, then tap two cards on the board.</p>
+    <p id="soloGuessHint" class="hint player-guess-hint">Tap two cards on the board to guess, or type below.</p>
+    <div class="field-row player-guess-input-row">
+      <input id="offlineGuessInput" type="text" inputmode="numeric" placeholder="Or type a guess, e.g. 1 5" autocomplete="off">
+      <button id="offlineGuessBtn" class="btn btn-primary">Submit</button>
+    </div>
   </div>
 
   <main class="board-stage">
@@ -222,7 +237,7 @@
 
       <section class="panel offline-panel" data-panel="offline">
         <h2>Offline Mode (Solo &amp; Multiplayer)</h2>
-        <p class="hint">Play the board yourself, or set up Multiplayer Teams below. Enter two card numbers to guess.</p>
+        <p class="hint">Play the board yourself, or set up Multiplayer Teams below. Once a game is running, guesses are entered from the main game screen - tap your name, then tap two cards - so nobody needs to come back in here.</p>
 
         <div class="teams-box">
           <h3 class="hints-title">Multiplayer Teams</h3>
@@ -247,13 +262,6 @@
             <button id="clearTeamsBtn" type="button" class="btn btn-secondary">Clear Teams</button>
           </div>
           <div id="teamRoster" class="team-roster" hidden></div>
-        </div>
-
-        <div id="teamGuessHint" class="hint" hidden>Tap a player below, then enter their guess.</div>
-        <div id="teamPlayerChips" class="team-player-chips" hidden></div>
-        <div class="field-row">
-          <input id="offlineGuessInput" type="text" placeholder="Your guess, e.g. 1 5" autocomplete="off">
-          <button id="offlineGuessBtn" class="btn btn-primary">Submit</button>
         </div>
       </section>
 

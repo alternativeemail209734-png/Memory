@@ -31,19 +31,26 @@ With both set, the game connects to your LIVE **by itself** every time it starts
 2. Upload every file from this folder again, on top of the old ones (same names, same `public` folder). Choose to replace when asked.
 3. Render notices the change and updates your game by itself in a minute or two.
 
-This update (Part 13) changed `server.js`, `public/client.js`, `public/index.html` and `public/style.css`: added Multiplayer Teams to Offline Mode, and 8 new Card Symbol packs. See `CHANGES.md` for the full list.
+This update (Part 15) changed `public/client.js`, `public/index.html` and `public/style.css`: guessing now happens right on the main game screen instead of inside Settings, and you can tap two cards on the board instead of typing numbers. See `CHANGES.md` for the full list.
 - Tap **Settings** (the gear) to pick Offline, Test or Live mode, to connect TikTok, and to pick a **Card Symbols** pack. There are 18 packs now: the originals (Kawaii Stickers, Classic Mix, Animals & Critters, Sweets & Treats, Space & Sky, Holiday & Celebration, Faces & Fun, Careers & Occupations, Vehicles & Travel, Buildings & Places) plus 8 new ones - **World Flags**, **Superheroes**, **Winter Wonderland**, **Famous Landmarks**, **Musical Instruments**, **Dinosaur Age**, **Fantasy & Magic** and **Board Games & Toys**. Picking a new pack starts a fresh game with it right away.
+
+### Guessing in Offline Mode (no need to open Settings)
+
+Whenever the game is in Offline Mode, a **Player Guess Bar** sits right under the top bar on the main screen - this is where guesses happen now, not in Settings. Hand the phone to whoever's turn it is and they just tap:
+
+1. Tap a face-down card, then tap a second one - that's the guess. The first card gets a bright ring so it's clear what's picked. No typing needed.
+2. Prefer typing? The guess box in that same bar still takes "1 5" and a Submit button, same as before.
 
 ### Multiplayer Teams (Offline Mode)
 
-In Settings > **Offline Mode**, use the **Multiplayer Teams** box to run a team match on one phone:
+In Settings > **Offline Mode**, use the **Multiplayer Teams** box to set the match up once:
 
 1. Pick how many teams (2, 3 or 4) and how many players on each team (1-5 - so 1v1 up to 5v5, or a 3- or 4-way game).
 2. Type each player's name in the boxes that appear.
-3. Tap **Start Team Game**. Each team is given a random color - Red, Blue, Green or Yellow - and a roster card for each team appears, listing its players.
-4. To make a guess, tap that player's name chip under the guess box, then type their two card numbers and tap Submit. Their points are added to their team's total automatically.
+3. Tap **Start Team Game**. Each team is given a random color - Red, Blue, Green or Yellow - and a roster card for each team appears, listing its players. You can close Settings now - it isn't needed again during play.
+4. To make a guess, on the main screen tap that player's name chip in the Player Guess Bar, then tap their two cards on the board (or type the numbers and tap Submit). Their points are added to their team's total automatically.
 5. Tap the trophy button and open the new **Teams** tab to see each team's color, total points, and what every member has scored.
-6. Tap **Clear Teams** to end the team match and go back to ordinary solo Offline play.
+6. Tap **Clear Teams** (in Settings > Offline Mode) to end the team match and go back to ordinary solo Offline play.
 
 - **Combo streaks:** a viewer who matches pairs back-to-back earns bonus points - the 2nd pair in a row is worth 2 points, the 3rd worth 3, and 4+ in a row is worth 4. A wrong guess resets that viewer's streak. While someone's streak is 2 or more, a small flame badge (e.g. "🔥×3") shows next to their name in the guess pop-up and the This Round leaderboard.
 - **Host Console** at the bottom lets you type guesses yourself. Tap **Hide** to hide it, and **Console** to bring it back.

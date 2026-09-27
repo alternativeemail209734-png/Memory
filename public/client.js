@@ -183,6 +183,9 @@
   const socket = io();
 
   const grid = document.getElementById('memoryGrid');
+  const chatFormatHintEl = document.getElementById('chatFormatHint');
+  const playerGuessBarEl = document.getElementById('playerGuessBar');
+  const soloGuessHintEl = document.getElementById('soloGuessHint');
   const rawEventCountEl = document.getElementById('rawEventCount');
   const lastReceivedEl = document.getElementById('lastReceived');
   const leaderboardListEl = document.getElementById('leaderboardList');
@@ -212,10 +215,53 @@
   let lastLeaderboard = { round: [], allTime: [], teams: [] };
   const cardEls = new Map();       // card id -> { el, front }
 
+  // ---- Tap-to-guess (Offline Mode): tap a face-down card, then a second
+  //      one, and that's a guess - the same as typing "id1 id2" into the
+  //      guess box, just without a keyboard. Works for solo play (as
+  //      "Host") and for Multiplayer Teams once a player chip is tapped.
+  let tapSelected = [];   // 0-2 card ids currently picked by tapping
+  function clearTapSelection() {
+    tapSelected.forEach((id) => {
+      const ref = cardEls.get(id);
+      if (ref) ref.el.classList.remove('tap-selected');
+    });
+    tapSelected = [];
+  }
+  function flashGuessHint(el) {
+    if (!el) return;
+    el.classList.remove('attn');
+    // Force a reflow so re-adding the class restarts the pulse animation.
+    void el.offsetWidth;
+    el.classList.add('attn');
+    setTimeout(() => el.classList.remove('attn'), 900);
+  }
+  function handleCardTap(cardId) {
+    if (!currentState || currentState.mode !== 'offline' || currentState.locked) return;
+    const card = currentState.cards.find((c) => c.id === cardId);
+    if (!card || card.flipped || card.matched) return;
+    const teamsOn = !!(currentState.teams && currentState.teams.enabled);
+    if (teamsOn && !activeTeamPlayer) { flashGuessHint(teamGuessHintEl); return; }
+    const ref = cardEls.get(cardId);
+    if (tapSelected.includes(cardId)) {
+      tapSelected = tapSelected.filter((id) => id !== cardId);
+      if (ref) ref.el.classList.remove('tap-selected');
+      return;
+    }
+    if (tapSelected.length >= 2) return;
+    tapSelected.push(cardId);
+    if (ref) ref.el.classList.add('tap-selected');
+    if (tapSelected.length === 2) {
+      const [a, b] = tapSelected;
+      socket.emit('host:manualInput', offlineGuessPayload(a + ' ' + b));
+      clearTapSelection();
+    }
+  }
+
   // ---- Board ------------------------------------------------------------
   function buildGrid(state) {
     grid.innerHTML = '';
     cardEls.clear();
+    clearTapSelection();
     state.cards.forEach((card) => {
       const el = document.createElement('div');
       el.className = 'card';
@@ -229,6 +275,7 @@
       inner.appendChild(back);
       inner.appendChild(front);
       el.appendChild(inner);
+      el.addEventListener('click', () => handleCardTap(card.id));
       grid.appendChild(el);
       cardEls.set(card.id, { el, front });
     });
@@ -742,6 +789,14 @@
   const teamGuessHintEl = document.getElementById('teamGuessHint');
   let activeTeamPlayer = null; // { id, name } - whoever's chip was tapped last
 
+  // Shared by the typed guess box and tap-to-guess on the board: attribute
+  // to the tapped team player when one is active, otherwise plain "Host".
+  function offlineGuessPayload(raw) {
+    return activeTeamPlayer
+      ? { user: activeTeamPlayer.name, playerId: activeTeamPlayer.id, text: raw }
+      : { user: 'Host', text: raw };
+  }
+
   function rebuildTeamNameInputs() {
     const count = parseInt(teamCountSelect.value, 10) || 2;
     const size = parseInt(teamSizeSelect.value, 10) || 1;
@@ -779,6 +834,7 @@
   document.getElementById('clearTeamsBtn').addEventListener('click', () => {
     if (!window.confirm('Clear teams and go back to solo Offline play?')) return;
     activeTeamPlayer = null;
+    clearTapSelection();
     socket.emit('host:clearTeams');
   });
 
@@ -789,7 +845,8 @@
     teamRosterEl.hidden = !enabled;
     teamPlayerChipsEl.hidden = !enabled;
     teamGuessHintEl.hidden = !enabled;
-    if (!enabled) { activeTeamPlayer = null; return; }
+    soloGuessHintEl.hidden = enabled;
+    if (!enabled) { activeTeamPlayer = null; clearTapSelection(); return; }
 
     teamRosterEl.innerHTML = '';
     teamsState.list.forEach((team) => {
@@ -819,6 +876,7 @@
           activeTeamPlayer = { id: pl.id, name: pl.name };
           teamPlayerChipsEl.querySelectorAll('.team-player-chip').forEach((c) => c.classList.remove('active'));
           chip.classList.add('active');
+          clearTapSelection();
         });
         teamPlayerChipsEl.appendChild(chip);
       });
@@ -836,6 +894,13 @@
   function showMode(mode) {
     modeBtns.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-mode') === mode));
     Object.keys(panels).forEach((key) => { panels[key].hidden = key !== mode; });
+    // Offline Mode moves guessing onto the main screen (Player Guess Bar)
+    // instead of the TikTok chat-format reminder.
+    const offline = mode === 'offline';
+    playerGuessBarEl.hidden = !offline;
+    chatFormatHintEl.hidden = offline;
+    grid.classList.toggle('offline-tap-mode', offline);
+    if (!offline) clearTapSelection();
   }
   modeBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -1140,11 +1205,7 @@
   });
 
   wireTextSend('testCustomText', 'testCustomBtn', (raw) => ({ user: 'Fake viewer', text: raw }));
-  wireTextSend('offlineGuessInput', 'offlineGuessBtn', (raw) => (
-    activeTeamPlayer
-      ? { user: activeTeamPlayer.name, playerId: activeTeamPlayer.id, text: raw }
-      : { user: 'Host', text: raw }
-  ));
+  wireTextSend('offlineGuessInput', 'offlineGuessBtn', offlineGuessPayload);
   // Host console also accepts "name: 1 5" to guess as a named viewer.
   wireTextSend('hostConsoleInput', 'hostConsoleBtn', (raw) => {
     const colon = raw.indexOf(':');

@@ -1507,3 +1507,54 @@ html, body {
 .team-standing-row.team-color-yellow { border-left-color: #eab308; background: rgba(234,179,8,0.10); }
 .team-standing-name { font-weight: 700; }
 .team-standing-members { font-size: 11.5px; opacity: 0.75; flex: 1; }
+
+/* ---- Player Guess Bar (Offline Mode) ---------------------------------
+   Lives on the main game screen (not in Settings) so every player - solo
+   or on a team - can enter a guess the instant they get the phone. Chips
+   let a team player identify themselves; tapping two cards on the board
+   (or typing "id id" below) sends the guess either way. */
+.player-guess-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.player-guess-hint { margin: 0; transition: color 0.15s ease; }
+.player-guess-hint.attn { color: var(--pink, #ec5f74); animation: guessHintPulse 0.9s ease; }
+@keyframes guessHintPulse {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.04); }
+}
+.player-guess-bar .team-player-chips { margin: 0; }
+.player-guess-bar .team-player-chip {
+  padding: 10px 16px;
+  font-size: 14px;
+  min-height: 40px;
+}
+.player-guess-input-row { margin: 0; }
+.player-guess-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 16px; /* 16px stops iOS Safari auto-zooming the page on focus */
+}
+.player-guess-input-row .btn { padding: 12px 18px; font-size: 14px; }
+
+/* Tap-to-guess on the board: face-down, unmatched cards get a pointer
+   cursor in Offline Mode, and a tapped-but-not-yet-submitted card gets a
+   bright ring so the player can see what they've picked before the
+   second tap completes the guess. */
+.memory-grid.offline-tap-mode .card:not(.flipped):not(.matched) { cursor: pointer; }
+.card.tap-selected .card-back {
+  box-shadow:
+    0 0 0 3px var(--cyan, #22d3ee),
+    0 2px 0 rgba(0,0,0,0.14),
+    0 4px 9px rgba(0,0,0,0.18),
+    inset 0 1px 1px rgba(255,255,255,0.5);
+}

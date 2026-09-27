@@ -1,3 +1,8 @@
+# What changed (part 15)
+
+- **Guessing moved out of Settings, onto the main game screen:** in Offline Mode (solo or Multiplayer Teams), there's now a **Player Guess Bar** right under the top bar on the main screen - nobody has to open the Settings gear to make a guess anymore. It shows the tap-to-pick player chips (once Teams are running) and a guess box. Settings \u2192 Offline Mode now only holds the one-time Multiplayer Teams setup (pick teams/players, names, Start/Clear).
+- **Tap two cards instead of typing numbers:** in Offline Mode you can now just tap a face-down card, then a second one, and that's the guess submitted - no keyboard needed. The first tap rings the card so you can see what you picked. Typing "1 5" into the guess box still works too, as a fallback. With Multiplayer Teams running, tap your name chip first (a nudge flashes if you tap cards before picking a player).
+
 # What changed (part 14)
 
 - **World Flags is now real flags, not text codes:** the 48 flags are hand-drawn full-colour pictures of real national flags (correct stripes, crosses, cantons and emblems), instead of Unicode flag emoji. This fixes flags showing up as plain two-letter codes on systems (Windows in particular) whose fonts don't draw flag emoji as pictures.
