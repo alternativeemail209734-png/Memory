@@ -447,7 +447,17 @@
     const fallback = generatedAvatarDataUri(uniqueId, name);
     img.src = avatarUrl || fallback;
     // An expired or blocked photo link falls back to the initials circle.
-    img.addEventListener('error', () => { if (img.src !== fallback) img.src = fallback; });
+    let retried = false;
+    img.addEventListener('error', () => {
+      if (img.src === fallback) return;
+      // Our own /avatar/ address may still be downloading the photo: retry once.
+      if (!retried && avatarUrl && avatarUrl.indexOf('/avatar/') === 0) {
+        retried = true;
+        setTimeout(() => { img.src = avatarUrl + (avatarUrl.indexOf('?') >= 0 ? '&' : '?') + 'r=1'; }, 2500);
+        return;
+      }
+      img.src = fallback;
+    });
     return img;
   }
 
