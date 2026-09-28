@@ -1,3 +1,17 @@
+# What changed (part 20)
+
+- **Real TikTok profile photos, not initials.** Viewers were showing the letter circle because TikTok usually sends profile pictures as **HEIC** files (Chrome, Android and Windows cannot display those) with links that **expire** after a while, so the browser gave up and fell back to initials. Now the game server downloads each viewer's exact photo the first time they comment (it asks TikTok for the JPEG/WebP version), keeps it, and serves it from your own game address (`/avatar/<viewer>`). The page shows it in the same circle everywhere a guesser appears: the guess pop-up, both leaderboards, the top-5 scoreboard, the round-end windows and the Recent Guesses feed. It keeps working after TikTok's original link expires.
+- The photo finder also checks more places in TikTok's data (older and newer library formats), so fewer viewers are missed.
+- Only real TikTok picture servers are downloaded from, only over https, and every picture is size-limited.
+- The initials circle is still used as a backup, but only if TikTok sends no photo at all for that viewer or the download fails. Test bots, the Host, and offline team players have no TikTok photo, so they keep initials.
+- Photos are kept in the game's memory (up to 800 viewers). If Render restarts, a viewer's photo comes back the next time they comment.
+- Changed: `server.js`, `public/client.js`.
+
+# What changed (part 19)
+
+- **Superheroes: 48 different original hero characters.** The old pack was 8 poses recoloured 6 ways. Every card is now its own full character (own body build, head-gear, cape or wings, emblem, prop and colours): a sun hero, an ice hero, a flame fighter, a robot, a wizard, a ninja, a knight, a flower hero, a storm hero and more. Files are still `hero-01.png` to `hero-48.png` in `public/symbols/`, so nothing else in the game changed.
+- These are original characters. They are not Superman, Spider-Man, Batman or any other studio-owned hero.
+
 # What changed (part 18)
 
 - **Fixed: game could not connect to the LIVE session.** The TikTok library was pinned to version 2.5.0, which has never existed on npm, so `npm install` failed on every deploy and the server never started. It now uses `^2.0.3`, a real stable release. Nothing else about the connector changed.

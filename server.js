@@ -218,29 +218,48 @@ function createTikTokConnector(onChat, onStatus, onRawEvent) {
     // for the viewer's profile picture across versions, so we try each of
     // the known spots and fall back to null (the client then draws a
     // generated circular initials avatar instead).
-    var avatarUrl = null;
-    function firstUrl(obj) {
-      if (!obj) return null;
-      if (typeof obj === "string") return obj;
-      if (Array.isArray(obj) && obj.length) return obj[0];
-      if (obj.urlList && obj.urlList.length) return obj.urlList[0];
-      if (obj.url && Array.isArray(obj.url) && obj.url.length) return obj.url[0];
-      if (obj.url && typeof obj.url === "string") return obj.url;
-      if (obj.urls && obj.urls.length) return obj.urls[0];
-      return null;
+    var candidates = [];
+    function pushUrl(u) {
+      if (typeof u === "string" && /^https?:\/\//i.test(u) && candidates.indexOf(u) < 0) candidates.push(u);
+    }
+    function pushAll(obj, depth) {
+      if (!obj || depth > 3) return;
+      if (typeof obj === "string") { pushUrl(obj); return; }
+      if (Array.isArray(obj)) { obj.forEach(function (o) { pushAll(o, depth + 1); }); return; }
+      if (typeof obj === "object") {
+        ["urlList", "urlListList", "urls", "url", "uri"].forEach(function (k) { if (obj[k]) pushAll(obj[k], depth + 1); });
+      }
     }
     if (data.user) {
-      avatarUrl = firstUrl(data.user.profilePicture) ||
-        firstUrl(data.user.avatarThumbnail) ||
-        firstUrl(data.user.avatarMedium) ||
-        firstUrl(data.user.avatarLarger) ||
-        (typeof data.user.avatarUrl === "string" ? data.user.avatarUrl : null) ||
-        (typeof data.user.profilePictureUrl === "string" ? data.user.profilePictureUrl : null);
+      ["profilePicture", "avatarThumbnail", "avatarThumb", "avatarMedium", "avatarLarger", "avatarLarge", "avatarUrl", "profilePictureUrl"]
+        .forEach(function (k) { pushAll(data.user[k], 0); });
     }
-    if (!avatarUrl && typeof data.avatarUrl === "string") avatarUrl = data.avatarUrl;
-    if (!avatarUrl && typeof data.profilePictureUrl === "string") avatarUrl = data.profilePictureUrl;
+    pushAll(data.avatarUrl, 0);
+    pushAll(data.profilePictureUrl, 0);
+    // Last resort: walk the whole user object for any link stored under a
+    // key that looks like a photo (avatar / profile / picture / portrait).
+    if (!candidates.length && data.user && typeof data.user === "object") {
+      var seen = [];
+      (function walk(o, depth, keyPath) {
+        if (!o || depth > 5 || seen.indexOf(o) >= 0) return;
+        if (typeof o === "object") seen.push(o);
+        Object.keys(o).forEach(function (k) {
+          var v = o[k];
+          var kp = keyPath + "." + k;
+          if (typeof v === "string") { if (/avatar|profile|picture|portrait/i.test(kp)) pushUrl(v); }
+          else if (v && typeof v === "object") walk(v, depth + 1, kp);
+        });
+      })(data.user, 0, "user");
+    }
+    // Browsers other than Safari cannot show HEIC pictures, so links that are
+    // not HEIC are tried first.
+    candidates.sort(function (x, y) {
+      var hx = /\.(heic|heif)(\?|$)/i.test(x) ? 1 : 0, hy = /\.(heic|heif)(\?|$)/i.test(y) ? 1 : 0;
+      return hx - hy;
+    });
+    var avatarUrl = candidates.length ? candidates[0] : null;
 
-    return { text: text === null ? null : String(text), uniqueId: String(uniqueId), nickname: String(nickname), avatarUrl: avatarUrl ? String(avatarUrl) : null };
+    return { text: text === null ? null : String(text), uniqueId: String(uniqueId), nickname: String(nickname), avatarUrl: avatarUrl ? String(avatarUrl) : null, avatarUrls: candidates };
   }
 
   // ---------------------------------------------------------------------
@@ -655,6 +674,124 @@ const io = new Server(server, { cors: { origin: '*' } });
 // does not put the game (and the TikTok connection) to sleep.
 app.get('/healthz', (req, res) => res.json({ ok: true, uptimeSeconds: process.uptime() }));
 
+// ---------------------------------------------------------------------------
+// VIEWER PROFILE PHOTOS
+// TikTok photo links (a) are often HEIC, which Chrome/Android/Windows cannot
+// show, and (b) expire after a while. So the SERVER downloads each viewer's
+// real photo the first time they comment (trying JPEG/WebP versions of the
+// link), keeps it in memory and serves it from this game's own address
+// (/avatar/<viewer id>). The page then always shows the real circular photo
+// and it keeps working after TikTok's original link expires.
+// ---------------------------------------------------------------------------
+const AVATAR_HOST_RE = /(^|\.)(tiktokcdn[\w-]*\.com|byteimg\.com|ibyteimg\.com|ibytedtos\.com|tiktokv\.(com|us|eu)|muscdn\.com|byteoversea\.com|bytecdn\.[a-z]+)$/i;
+const AVATAR_MAX_BYTES = 600 * 1024;
+const AVATAR_MAX_ENTRIES = 800;
+const AVATAR_REFRESH_MS = 6 * 60 * 60 * 1000;
+const AVATAR_RETRY_MS = 60 * 1000;
+const avatarStore = new Map();    // uniqueId -> { buf, type, pathKey, at }
+const avatarPending = new Map();  // uniqueId -> Promise
+const avatarVer = new Map();      // uniqueId -> number (changes when a new photo is fetched)
+const avatarRaw = new Map();      // uniqueId -> last raw link (used only as a fallback redirect)
+const avatarFailedAt = new Map(); // uniqueId -> time of last failed download
+
+function isAllowedAvatarUrl(u) {
+  try {
+    const x = new URL(u);
+    return x.protocol === 'https:' && AVATAR_HOST_RE.test(x.hostname);
+  } catch (e) { return false; }
+}
+function avatarVariants(u) {
+  const m = String(u).match(/^([^?#]*?)\.(heic|heif|avif|webp|jpe?g|png)(\?[^#]*)?$/i);
+  if (m && /^(heic|heif|avif)$/i.test(m[2])) {
+    const q = m[3] || '';
+    return [m[1] + '.jpeg' + q, m[1] + '.webp' + q, m[1] + '.png' + q];
+  }
+  return [u];
+}
+async function downloadAvatar(urls) {
+  const tried = new Set();
+  for (const raw of urls) {
+    if (!isAllowedAvatarUrl(raw)) continue;
+    for (const v of avatarVariants(raw)) {
+      if (tried.has(v)) continue;
+      tried.add(v);
+      try {
+        const res = await fetch(v, {
+          redirect: 'follow',
+          signal: AbortSignal.timeout(6000),
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+            'Accept': 'image/jpeg,image/webp,image/png,image/*;q=0.8',
+          },
+        });
+        if (!res.ok) continue;
+        if (res.url && !isAllowedAvatarUrl(res.url)) continue;
+        const type = String(res.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+        if (!/^image\/(jpeg|png|webp|gif|avif)$/.test(type)) continue;
+        const buf = Buffer.from(await res.arrayBuffer());
+        if (!buf.length || buf.length > AVATAR_MAX_BYTES) continue;
+        return { buf, type };
+      } catch (e) { /* try the next variant */ }
+    }
+  }
+  return null;
+}
+function avatarPathFor(uniqueId) {
+  return '/avatar/' + encodeURIComponent(uniqueId) + '?t=' + (avatarVer.get(uniqueId) || 0);
+}
+// Called for every real viewer comment. Starts (or skips) the download and
+// returns the address the page should use for this viewer's photo.
+function registerAvatar(uniqueId, urls) {
+  try {
+    if (!uniqueId || uniqueId === 'unknown' || !urls || !urls.length) return null;
+    const usable = urls.filter(isAllowedAvatarUrl);
+    if (!usable.length) return urls[0] || null; // unknown host: let the browser try the link directly
+    avatarRaw.set(uniqueId, usable[0]);
+    const pathKey = usable[0].split('?')[0].replace(/\.(heic|heif|avif|webp|jpe?g|png)$/i, '');
+    const have = avatarStore.get(uniqueId);
+    const fresh = have && have.pathKey === pathKey && (Date.now() - have.at) < AVATAR_REFRESH_MS;
+    const failedRecently = avatarFailedAt.has(uniqueId) && (Date.now() - avatarFailedAt.get(uniqueId)) < AVATAR_RETRY_MS;
+    if (!fresh && !avatarPending.has(uniqueId) && !failedRecently) {
+      if (!have || have.pathKey !== pathKey) avatarVer.set(uniqueId, Date.now());
+      const job = downloadAvatar(usable).then((got) => {
+        if (got) {
+          if (avatarStore.size >= AVATAR_MAX_ENTRIES) avatarStore.delete(avatarStore.keys().next().value);
+          avatarStore.set(uniqueId, { buf: got.buf, type: got.type, pathKey: pathKey, at: Date.now() });
+          avatarFailedAt.delete(uniqueId);
+        } else {
+          avatarFailedAt.set(uniqueId, Date.now());
+          console.warn('[photo] could not download a usable photo for ' + uniqueId);
+        }
+      }).catch(() => { avatarFailedAt.set(uniqueId, Date.now()); }).finally(() => { avatarPending.delete(uniqueId); });
+      avatarPending.set(uniqueId, job);
+    }
+    return avatarPathFor(uniqueId);
+  } catch (e) {
+    console.error('[registerAvatar error - swallowed]', e);
+    return urls && urls[0] ? urls[0] : null;
+  }
+}
+app.get('/avatar/:id', async (req, res) => {
+  try {
+    const id = String(req.params.id || '');
+    let entry = avatarStore.get(id);
+    if (!entry && avatarPending.has(id)) {
+      await Promise.race([avatarPending.get(id), new Promise((r) => setTimeout(r, 7000))]);
+      entry = avatarStore.get(id);
+    }
+    if (entry) {
+      res.setHeader('Content-Type', entry.type);
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      return res.end(entry.buf);
+    }
+    const raw = avatarRaw.get(id);
+    if (raw) return res.redirect(302, raw);
+    res.status(404).end();
+  } catch (e) {
+    res.status(404).end();
+  }
+});
+
 // No-cache headers so phones always fetch the newest files after a deploy.
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: false,
@@ -821,13 +958,10 @@ const EMOJI_PACKS = {
   },
   superheroes: {
     label: 'Superheroes',
-    // 48 individually hand-drawn hero CHARACTERS (public/symbols/hero-*.png)
-    // - no copyrighted characters. Each picture is a full costumed figure
-    // (not just a prop/symbol): 8 distinct poses (standing, flying, running,
-    // crouching, punching up, wide stance, kneeling, cape-flared) crossed
-    // with 6 distinct chest emblems (star, bolt, shield, diamond, ring,
-    // hexagon), so every one of the 48 is a genuinely different silhouette
-    // AND a different colour suit - never the same shape just recoloured.
+    // 48 ORIGINAL hero characters (public/symbols/hero-*.png). Each is a full
+    // costumed figure with its own silhouette, head-gear, cape or wings,
+    // emblem, prop and colour scheme - no two are recolours of each other.
+    // They are original designs, not the trademarked movie/comic heroes.
     emojis: [
       'img:hero-01:0', 'img:hero-02:0', 'img:hero-03:0', 'img:hero-04:0', 'img:hero-05:0', 'img:hero-06:0', 'img:hero-07:0', 'img:hero-08:0',
       'img:hero-09:0', 'img:hero-10:0', 'img:hero-11:0', 'img:hero-12:0', 'img:hero-13:0', 'img:hero-14:0', 'img:hero-15:0', 'img:hero-16:0',
@@ -1559,8 +1693,9 @@ const tiktokConnector = createTikTokConnector(
       state.rawEventCount += 1;
       return;
     }
+    const photo = registerAvatar(fields.uniqueId, fields.avatarUrls && fields.avatarUrls.length ? fields.avatarUrls : (fields.avatarUrl ? [fields.avatarUrl] : []));
     handleIncomingComment(
-      { uniqueId: fields.uniqueId, name: fields.nickname, avatar: fields.avatarUrl },
+      { uniqueId: fields.uniqueId, name: fields.nickname, avatar: photo },
       fields.text
     );
   },

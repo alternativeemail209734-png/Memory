@@ -31,7 +31,7 @@ With both set, the game connects to your LIVE **by itself** every time it starts
 2. Upload every file from this folder again, on top of the old ones (same names, same `public` folder). Choose to replace when asked.
 3. Render notices the change and updates your game by itself in a minute or two.
 
-This update (Part 16) changed `public/client.js` and `public/style.css`: wherever a team player's own score shows (leaderboards, the scoreboard, round-end windows, the guess pop-up), a small colored badge now shows their team's current round total right next to it. See `CHANGES.md` for the full list.
+This update (Part 20) makes the game show each viewer's **real TikTok profile photo** in a circle next to their name (instead of a letter circle), and it also includes the 48 original Superhero characters from Part 19. It changed `server.js` and `public/client.js`. Photos only appear for real viewers in **Live** mode. See `CHANGES.md` for the full list.
 - Tap **Settings** (the gear) to pick Offline, Test or Live mode, to connect TikTok, and to pick a **Card Symbols** pack. There are 18 packs now: the originals (Kawaii Stickers, Classic Mix, Animals & Critters, Sweets & Treats, Space & Sky, Holiday & Celebration, Faces & Fun, Careers & Occupations, Vehicles & Travel, Buildings & Places) plus 8 new ones - **World Flags**, **Superheroes**, **Winter Wonderland**, **Famous Landmarks**, **Musical Instruments**, **Dinosaur Age**, **Fantasy & Magic** and **Board Games & Toys**. Picking a new pack starts a fresh game with it right away.
 
 ### Guessing in Offline Mode (no need to open Settings)
@@ -107,6 +107,7 @@ Render's free plan puts the game to sleep after about 15 minutes with no visitor
 ## If something looks wrong
 
 - **Chat Comments Received stays at 0 in Live mode:** the username or key may be wrong, or you are not live yet. Check the message in Settings. It shows the real reason, and the Render logs show the full detail.
+- **A viewer shows a letter circle instead of their photo:** that only happens if TikTok sent no photo for them or could not be downloaded. Check the Render logs for a line starting with `[photo]`. Test bots, the Host and offline team players never have a TikTok photo.
 - **A viewer's guess never shows up:** check the TikTok Spam filter setting at the top of this page first.
 - **The first load is slow:** free Render games go to sleep. Wait about 30 seconds.
 - **All-Time scores:** they are saved to a file, so they survive the game going to sleep and waking up. They start again from zero when you upload new files (a new deploy), because the free Render disk is wiped. To keep them across deploys, use a paid plan with a Persistent Disk (the steps are written in `render.yaml`).
