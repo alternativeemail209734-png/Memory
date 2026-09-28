@@ -686,17 +686,17 @@ const LEVELS = {
 const EMOJI_PACKS = {
   kawaii: {
     label: 'Kawaii Stickers',
-    // Picture cards (public/symbols/*.png). "img:name:hue" = that picture, colour-shifted by hue degrees,
-    // so 12 drawn pictures give 48 clearly different ones for Chaos.
+    // 48 different cute pictures (public/symbols/*.png and kw-*.png). No picture is
+    // a colour-shifted copy of another - every one is its own drawing.
     emojis: [
       'img:heart:0', 'img:star:0', 'img:moon:0', 'img:drop:0', 'img:clover:0', 'img:cat:0',
       'img:gem:0', 'img:donut:0', 'img:cloud:0', 'img:frog:0', 'img:mushroom:0', 'img:ghost:0',
-      'img:heart:120', 'img:star:120', 'img:moon:120', 'img:drop:120', 'img:clover:120', 'img:cat:120',
-      'img:gem:120', 'img:donut:120', 'img:cloud:120', 'img:frog:120', 'img:mushroom:120', 'img:ghost:120',
-      'img:heart:210', 'img:star:210', 'img:moon:210', 'img:drop:210', 'img:clover:210', 'img:cat:210',
-      'img:gem:210', 'img:donut:210', 'img:cloud:210', 'img:frog:210', 'img:mushroom:210', 'img:ghost:210',
-      'img:heart:300', 'img:star:300', 'img:moon:300', 'img:drop:300', 'img:clover:300', 'img:cat:300',
-      'img:gem:300', 'img:donut:300', 'img:cloud:300', 'img:frog:300', 'img:mushroom:300', 'img:ghost:300',
+      'img:kw-01:0', 'img:kw-02:0', 'img:kw-03:0', 'img:kw-04:0', 'img:kw-05:0', 'img:kw-06:0',
+      'img:kw-07:0', 'img:kw-08:0', 'img:kw-09:0', 'img:kw-10:0', 'img:kw-11:0', 'img:kw-12:0',
+      'img:kw-13:0', 'img:kw-14:0', 'img:kw-15:0', 'img:kw-16:0', 'img:kw-17:0', 'img:kw-18:0',
+      'img:kw-19:0', 'img:kw-20:0', 'img:kw-21:0', 'img:kw-22:0', 'img:kw-23:0', 'img:kw-24:0',
+      'img:kw-25:0', 'img:kw-26:0', 'img:kw-27:0', 'img:kw-28:0', 'img:kw-29:0', 'img:kw-30:0',
+      'img:kw-31:0', 'img:kw-32:0', 'img:kw-33:0', 'img:kw-34:0', 'img:kw-35:0', 'img:kw-36:0',
     ],
   },
   classic: {
@@ -821,20 +821,20 @@ const EMOJI_PACKS = {
   },
   superheroes: {
     label: 'Superheroes',
-    // 48 individually hand-drawn hero icons (public/symbols/h-*.png) - no
-    // copyrighted characters, no colour-tint duplicates. Every picture is a
-    // genuinely different silhouette (mask, cape, shield, bolt, gauntlet,
-    // rocket, DNA helix, force field, etc.) instead of the same shape
-    // recoloured, and each reads clearly at small size and across devices
-    // (avoids the multi-codepoint hero/mask emoji that render inconsistently
-    // - or as plain boxes - on some platforms).
+    // 48 individually hand-drawn hero CHARACTERS (public/symbols/hero-*.png)
+    // - no copyrighted characters. Each picture is a full costumed figure
+    // (not just a prop/symbol): 8 distinct poses (standing, flying, running,
+    // crouching, punching up, wide stance, kneeling, cape-flared) crossed
+    // with 6 distinct chest emblems (star, bolt, shield, diamond, ring,
+    // hexagon), so every one of the 48 is a genuinely different silhouette
+    // AND a different colour suit - never the same shape just recoloured.
     emojis: [
-      'img:h-mask:0', 'img:h-cape:0', 'img:h-shield:0', 'img:h-bolt:0', 'img:h-burst:0', 'img:h-fist:0', 'img:h-wingedboot:0', 'img:h-beltgadget:0',
-      'img:h-rocket:0', 'img:h-jetpack:0', 'img:h-gear:0', 'img:h-grapple:0', 'img:h-batwing:0', 'img:h-web:0', 'img:h-flame:0', 'img:h-tornado:0',
-      'img:h-wave:0', 'img:h-wing:0', 'img:h-bow:0', 'img:h-sword:0', 'img:h-gem:0', 'img:h-crown:0', 'img:h-trophy:0', 'img:h-eye:0',
-      'img:h-visor:0', 'img:h-musclearm:0', 'img:h-roboarm:0', 'img:h-dna:0', 'img:h-atom:0', 'img:h-forcefield:0', 'img:h-boomerang:0', 'img:h-starbadge:0',
-      'img:h-wings:0', 'img:h-capeswirl:0', 'img:h-phonebooth:0', 'img:h-fortress:0', 'img:h-searchlight:0', 'img:h-compass:0', 'img:h-flyingfigure:0', 'img:h-comet:0',
-      'img:h-chainbreak:0', 'img:h-emblem:0', 'img:h-spikedgauntlet:0', 'img:h-energyorb:0', 'img:h-katana:0', 'img:h-helmet:0', 'img:h-scale:0', 'img:h-globe:0',
+      'img:hero-01:0', 'img:hero-02:0', 'img:hero-03:0', 'img:hero-04:0', 'img:hero-05:0', 'img:hero-06:0', 'img:hero-07:0', 'img:hero-08:0',
+      'img:hero-09:0', 'img:hero-10:0', 'img:hero-11:0', 'img:hero-12:0', 'img:hero-13:0', 'img:hero-14:0', 'img:hero-15:0', 'img:hero-16:0',
+      'img:hero-17:0', 'img:hero-18:0', 'img:hero-19:0', 'img:hero-20:0', 'img:hero-21:0', 'img:hero-22:0', 'img:hero-23:0', 'img:hero-24:0',
+      'img:hero-25:0', 'img:hero-26:0', 'img:hero-27:0', 'img:hero-28:0', 'img:hero-29:0', 'img:hero-30:0', 'img:hero-31:0', 'img:hero-32:0',
+      'img:hero-33:0', 'img:hero-34:0', 'img:hero-35:0', 'img:hero-36:0', 'img:hero-37:0', 'img:hero-38:0', 'img:hero-39:0', 'img:hero-40:0',
+      'img:hero-41:0', 'img:hero-42:0', 'img:hero-43:0', 'img:hero-44:0', 'img:hero-45:0', 'img:hero-46:0', 'img:hero-47:0', 'img:hero-48:0',
     ],
   },
   winter: {
@@ -856,15 +856,17 @@ const EMOJI_PACKS = {
   },
   landmarks: {
     label: 'Famous Landmarks',
-    // 12 real, world-famous landmarks from capital/major cities (Paris,
-    // New York, London, Beijing, Agra, Rome, Sydney, Cairo, Pisa, Rio,
-    // Dubai, San Francisco), each hand-drawn and tinted four ways - not
-    // generic building emoji.
+    // 48 different real-world landmarks (lm-*.png and lm2-*.png), each its own
+    // drawing - no colour-tinted duplicates.
     emojis: [
-      'img:lm-eiffel:0', 'img:lm-liberty:0', 'img:lm-bigben:0', 'img:lm-greatwall:0', 'img:lm-tajmahal:0', 'img:lm-colosseum:0', 'img:lm-opera:0', 'img:lm-pyramids:0', 'img:lm-pisa:0', 'img:lm-christ:0', 'img:lm-burjkhalifa:0', 'img:lm-goldengate:0',
-      'img:lm-eiffel:120', 'img:lm-liberty:120', 'img:lm-bigben:120', 'img:lm-greatwall:120', 'img:lm-tajmahal:120', 'img:lm-colosseum:120', 'img:lm-opera:120', 'img:lm-pyramids:120', 'img:lm-pisa:120', 'img:lm-christ:120', 'img:lm-burjkhalifa:120', 'img:lm-goldengate:120',
-      'img:lm-eiffel:210', 'img:lm-liberty:210', 'img:lm-bigben:210', 'img:lm-greatwall:210', 'img:lm-tajmahal:210', 'img:lm-colosseum:210', 'img:lm-opera:210', 'img:lm-pyramids:210', 'img:lm-pisa:210', 'img:lm-christ:210', 'img:lm-burjkhalifa:210', 'img:lm-goldengate:210',
-      'img:lm-eiffel:300', 'img:lm-liberty:300', 'img:lm-bigben:300', 'img:lm-greatwall:300', 'img:lm-tajmahal:300', 'img:lm-colosseum:300', 'img:lm-opera:300', 'img:lm-pyramids:300', 'img:lm-pisa:300', 'img:lm-christ:300', 'img:lm-burjkhalifa:300', 'img:lm-goldengate:300',
+      'img:lm-eiffel:0', 'img:lm-liberty:0', 'img:lm-bigben:0', 'img:lm-greatwall:0', 'img:lm-tajmahal:0', 'img:lm-colosseum:0',
+      'img:lm-opera:0', 'img:lm-pyramids:0', 'img:lm-pisa:0', 'img:lm-christ:0', 'img:lm-burjkhalifa:0', 'img:lm-goldengate:0',
+      'img:lm2-01:0', 'img:lm2-02:0', 'img:lm2-03:0', 'img:lm2-04:0', 'img:lm2-05:0', 'img:lm2-06:0',
+      'img:lm2-07:0', 'img:lm2-08:0', 'img:lm2-09:0', 'img:lm2-10:0', 'img:lm2-11:0', 'img:lm2-12:0',
+      'img:lm2-13:0', 'img:lm2-14:0', 'img:lm2-15:0', 'img:lm2-16:0', 'img:lm2-17:0', 'img:lm2-18:0',
+      'img:lm2-19:0', 'img:lm2-20:0', 'img:lm2-21:0', 'img:lm2-22:0', 'img:lm2-23:0', 'img:lm2-24:0',
+      'img:lm2-25:0', 'img:lm2-26:0', 'img:lm2-27:0', 'img:lm2-28:0', 'img:lm2-29:0', 'img:lm2-30:0',
+      'img:lm2-31:0', 'img:lm2-32:0', 'img:lm2-33:0', 'img:lm2-34:0', 'img:lm2-35:0', 'img:lm2-36:0',
     ],
   },
   // The four packs below reuse a smaller set of themed pictures in four

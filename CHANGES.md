@@ -1,3 +1,10 @@
+# What changed (part 18)
+
+- **Fixed: game could not connect to the LIVE session.** The TikTok library was pinned to version 2.5.0, which has never existed on npm, so `npm install` failed on every deploy and the server never started. It now uses `^2.0.3`, a real stable release. Nothing else about the connector changed.
+- **Superheroes are now real hero characters:** 48 new pictures (`hero-01` to `hero-48`), each a full costumed figure with cape, mask and chest emblem - 8 poses x 6 emblems, each in its own suit colour. The old prop icons (mask, shield, bolt...) are removed.
+- **No more colour-only duplicates in Kawaii Stickers and Famous Landmarks:** both packs used 12 pictures tinted 4 ways. Each now has 48 genuinely different pictures (36 new drawings added to the original 12 in each pack).
+- Not changed: Musical Instruments, Dinosaur Age, Fantasy & Magic and Board Games & Toys still use tinted emoji.
+
 # What changed (part 17)
 
 - **Winter Wonderland: 48 truly different pictures, not 12 recoloured:** replaced the old set (12 shapes each tinted 4 colours) with **48 individually hand-drawn, strictly winter-themed pictures** - snowflake, snowman, mitten, scarf, ice skate, crossed skis, sled, snow-capped pine tree, igloo, penguin, hot cocoa, snowy mountain, snowball, beanie hat, earmuffs, icicles, snow globe, hockey stick & puck, polar bear, arctic fox, reindeer, snowshoe, cold thermometer, frosted window, ski lift chair, sleigh, ski goggles, winter coat, frozen lake, snow wreath, hot water bottle, wool socks, fireplace & stockings, seal, walrus, candy cane, fair-isle sweater, thermos, ski slope, ice crystal, snow boots, gloves, husky, aurora borealis, snow cloud, snow angel, ice-fishing hole and a snow cabin. Every picture is its own shape - nothing is just a different colour of another card in the pack.
